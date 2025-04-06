@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web3 AI Learning - Module</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Module Content</h1>
+            <nav>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="roadmap.html">Roadmap</a>
+                <a href="progress.html">Progress</a>
+            </nav>
+        </div>
+        <div class="card">
+            <h2 id="moduleTitle"></h2>
+            <div id="moduleContent"></div>
+            <button onclick="startAssessment()">Take Assessment</button>
+        </div>
+    </div>
+    <script>
+        async function loadModule() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const moduleId = urlParams.get('module');
+            document.getElementById('moduleTitle').textContent = moduleId.replace('-', ' ');
+            
+            const response = await fetch(`http://localhost:8000/module/${moduleId}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            const data = await response.json();
+            document.getElementById('moduleContent').innerHTML = data.content;
+        }
+
+        async function startAssessment() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const moduleId = urlParams.get('module');
+            window.location.href = `assessment.html?module=${moduleId}`;
+        }
+
+        loadModule();
+    </script>
+</body>
+</html>

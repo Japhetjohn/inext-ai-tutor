@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat | Infinity Academy</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #1a1a2e;
+            color: #e0e0ff;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 200px;
+            background: #0f0f1f;
+            padding: 20px;
+            border-right: 1px solid #00ffff;
+        }
+        .sidebar a {
+            color: #e0e0ff;
+            padding: 10px;
+            display: block;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .sidebar a.active {
+            background: #00ffff;
+            color: #0f0f1f;
+        }
+        .chat-container {
+            flex: 1;
+            padding: 20px;
+        }
+        .chat-history {
+            width: 200px;
+            padding: 20px;
+            background: #0f0f1f;
+            border-left: 1px solid #00ffff;
+        }
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            background: #343a40;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #00ffff;
+            margin-bottom: 20px;
+        }
+        .chat-messages p {
+            margin: 5px 0;
+        }
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-neon {
+            background: linear-gradient(45deg, #00ffff, #007bff);
+            color: #0f0f1f;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        .btn-neon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h3>Infinity Academy</h3>
+            </div>
+            <a href="/chat" data-section="chat" class="active">AI Chat</a>
+            <a href="/dashboard" data-section="student">Student</a>
+            <a href="#" data-section="exams">Exams</a>
+            <a href="#" data-section="test-record">Test Record</a>
+            <a href="#" data-section="settings">Settings</a>
+            <a href="#" data-section="support">Support</a>
+            <a href="#" data-section="community">Community</a>
+            <a href="/logout">Log out</a>
+            <button class="btn-neon mt-3">Upgrade</button>
+        </nav>
+
+        <!-- Chat Area -->
+        <div class="chat-container">
+            <h1>AI Chat</h1>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" class="form-control" placeholder="Type Your Prompt">
+                <button class="btn-neon" onclick="sendChatMessage()">Send</button>
+                <button class="btn-neon">Attach</button>
+                <button class="btn-neon">Voice Message</button>
+                <button class="btn-neon">Browse Prompt</button>
+            </div>
+        </div>
+
+        <!-- Chat History -->
+        <div class="chat-history">
+            <h3>History</h3>
+            <div id="chatHistory"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_URL = "http://127.0.0.1:8000";
+        const userId = "{{ user.id }}";
+        let socket;
+
+
+
+        // Initialize WebSocket
+        function initWebSocket() {
+            socket = new WebSocket(`ws://localhost:8000/ws/chat/${userId}`);
+            socket.onopen = () => console.log("WebSocket connected");
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                const chatMessages = document.getElementById("chatMessages");
+                if (data.message) {
+                    chatMessages.innerHTML += `<p><strong>AI:</strong> ${data.message}</p>`;
+                } else if (data.chat_history) {
+                    chatMessages.innerHTML += `<p><strong>You:</strong> ${data.chat_history.message}</p>`;
+                    chatMessages.innerHTML += `<p><strong>AI:</strong> ${data.chat_history.response}</p>`;
+                }
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            };
+            socket.onclose = () => console.log("WebSocket closed");
+            socket.onerror = (error) => console.error("WebSocket error:", error);
+        }
+
+        // Send chat message
+        async function sendChatMessage() {
+            const chatInput = document.getElementById("chatInput");
+            const message = chatInput.value.trim();
+            if (!message || !socket || socket.readyState !== WebSocket.OPEN) return;
+
+            const chatMessages = document.getElementById("chatMessages");
+            chatMessages.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+            socket.send(message);
+            chatInput.value = "";
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function loadChatHistory() {
+            try {
+                const response = await fetch(`${API_URL}/chat_history?user_id=${userId}`, {
+                    method: "GET",
+                    credentials: "include" // Include cookies
+                });
+
+                if (response.ok) {
+                    const history = await response.json();
+                    const chatHistoryDiv = document.getElementById("chat-history");
+                    history.forEach(item => {
+                        chatHistoryDiv.innerHTML += `<p><strong>You:</strong> ${item.message}<br><strong>AI:</strong> ${item.response}</p>`;
+                    });
+                } else {
+                    const error = await response.json();
+                    console.error("Error loading chat history:", error);
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadChatHistory();
+        });
+
+        // Handle Enter key
+        document.getElementById("chatInput").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendChatMessage();
+        });
+
+        // Initialize
+        initWebSocket();
+        loadChatHistory();
+    </script>
+</body>
+</html>

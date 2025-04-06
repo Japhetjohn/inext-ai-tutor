@@ -1,0 +1,16 @@
+modules = ["web", "python-3.12", "nodejs-20"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Run"
+
+[[workflows.workflow]]
+name = "Run"
+author = 41170951
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd web3Tutor && pip install -r requirements.txt && python app.py"

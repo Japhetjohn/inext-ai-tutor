@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iNextAI - Web3 Learning Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="landing-container">
+        <nav class="landing-nav">
+            <div class="logo">iNextAI</div>
+            <div class="nav-links">
+                <a href="/login" class="btn-neon">Login</a>
+                <a href="/register" class="btn-neon">Register</a>
+            </div>
+        </nav>
+
+        <header class="hero-section">
+            <h1 class="neon-text">Master Web3 Development</h1>
+            <p class="subtitle">AI-Powered Learning Platform for Web3 Enthusiasts</p>
+            <div class="cta-buttons">
+                <a href="/register" class="btn-neon primary">Start Learning</a>
+                <a href="#features" class="btn-neon secondary">Learn More</a>
+            </div>
+        </header>
+
+        <section id="features" class="features-grid">
+            <div class="feature-card">
+                <h3>AI-Powered Learning</h3>
+                <p>Personalized courses tailored to your level and goals</p>
+            </div>
+            <div class="feature-card">
+                <h3>Web3 Integration</h3>
+                <p>Connect your wallet and track progress on-chain</p>
+            </div>
+            <div class="feature-card">
+                <h3>Interactive Content</h3>
+                <p>Learn through hands-on projects and real-world applications</p>
+            </div>
+            <div class="feature-card">
+                <h3>Community</h3>
+                <p>Join a thriving community of Web3 developers</p>
+            </div>
+        </section>
+    </div>
+    
+    <script src="{{ url_for('static', path='js/scripts.js') }}"></script>
+</body>
+</html>

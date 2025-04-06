@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Content | Infinity Academy</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #1a1a2e;
+            color: #e0e0ff;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 200px;
+            background: #0f0f1f;
+            padding: 20px;
+            border-right: 1px solid #00ffff;
+        }
+        .sidebar a {
+            color: #e0e0ff;
+            padding: 10px;
+            display: block;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .sidebar a.active {
+            background: #00ffff;
+            color: #0f0f1f;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+        .profile {
+            width: 200px;
+            padding: 20px;
+            background: #0f0f1f;
+            border-left: 1px solid #00ffff;
+        }
+        .content-detail {
+            background: #343a40;
+            padding: 20px;
+            border: 1px solid #00ffff;
+            border-radius: 10px;
+        }
+        .btn-neon {
+            background: linear-gradient(45deg, #00ffff, #007bff);
+            color: #0f0f1f;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        .btn-neon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h3>Infinity Academy</h3>
+            </div>
+            <a href="/chat" data-section="chat">AI Chat</a>
+            <a href="/dashboard" data-section="student" class="active">Student</a>
+            <a href="#" data-section="exams">Exams</a>
+            <a href="#" data-section="test-record">Test Record</a>
+            <a href="#" data-section="settings">Settings</a>
+            <a href="#" data-section="support">Support</a>
+            <a href="#" data-section="community">Community</a>
+            <a href="/logout">Log out</a>
+            <button class="btn-neon mt-3">Upgrade</button>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div id="content-view" class="content-detail">
+                <h2>Module: <span> {{ selected_topic.topic_name }} ({{ selected_topic.estimated_time }})</span></h2>
+                <div id="content-body"></div>
+                <button class="btn-neon" onclick="showQuiz()">Take Quiz</button>
+                <button class="btn-neon" onclick="goBack()">Back to Roadmap</button>
+            </div>
+            <!-- Display Selected Module Content -->
+            <div id="module-content" class="mt-4">
+                <!-- <h2>{{ selected_topic.topic_name }} ({{ selected_topic.estimated_time }})</h2> -->
+                <p>{{ selected_topic.abstract }}</p>
+                <hr>
+                <div class="content">
+                    {{ detailed_content | safe }}
+                </div>
+                
+                {% if selected_topic.completed %}
+                <p>Completed on {{ selected_topic.completion_date }}</p>
+                {% if selected_topic.performance_score is not none %}
+                <p>Performance Score: {{ selected_topic.performance_score }}%</p>
+                {% if selected_topic.performance_score < 50 %}
+                <p style="color: #ffcc00;">Suggestion: Review foundational content or take a remedial quiz.</p>
+                {% endif %}
+                {% endif %}
+                {% if selected_topic.feedback %}
+                <p>Feedback: {{ selected_topic.feedback }}</p>
+                {% endif %}
+                {% else %}
+                <button class="btn btn-success" onclick="completeTopic({{ selected_topic.id }})">Mark as Complete</button>
+                {% endif %}
+                <button class="btn btn-info" onclick="showFeedbackForm({{ selected_topic.id }})">Provide Feedback</button>
+            </div>
+
+            <!-- Feedback Form -->
+            <div id="feedbackForm" class="mt-3" style="display: none;">
+                <h3>Provide Feedback</h3>
+                <form id="topicFeedbackForm">
+                    <input type="hidden" id="feedbackTopicId">
+                    <div class="mb-3">
+                        <label for="performanceScore" class="form-label">Performance Score (0-100):</label>
+                        <input type="number" id="performanceScore" class="form-control" min="0" max="100">
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedbackText" class="form-label">Feedback (Optional):</label>
+                        <textarea id="feedbackText" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newInterest" class="form-label">New Interest (Optional):</label>
+                        <input type="text" id="newInterest" class="form-control" placeholder="e.g., I want to explore DeFi now">
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="submitFeedback()">Submit Feedback</button>
+                </form>
+            </div>
+
+            <!-- Navigation Between Modules -->
+            <div class="mt-4 text-center">
+                {% if module_index > 0 %}
+                <a href="/course/{{ learning_path.id }}/{{ module_index - 1 }}" class="btn btn-sm m-2">Previous Module</a>
+                {% endif %}
+                {% if module_index < course_outline|length - 1 %}
+                <a href="/course/{{ learning_path.id }}/{{ module_index + 1 }}" class="btn btn-sm m-2">Next Module</a>
+                {% endif %}
+            </div>
+
+            <!-- Status Message -->
+            <p id="statusMessage" class="mt-3 text-center"></p>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="profile">
+            <h3>Profile</h3>
+            <p>{{ user.username }}<br>Level 3</p>
+            <div id="wishlist">
+                <!-- Wishlist items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_URL = "http://127.0.0.1:8000";
+        // const API_URL = "http://localhost:8000"; // Match backend origin
+        const learningPathId = "{{ learning_path.id }}";
+        const moduleIndex = {{ module_index }};
+        const topicId = "{{ selected_topic.id }}";
+
+        // Load course content
+        async function loadContent() {
+            const response = await fetch(`${API_URL}/course/${learningPathId}/${topicId}`, { credentials: "include" });
+            const data = await response.json();
+            document.getElementById("content-title").textContent = data.topic;
+            document.getElementById("content-body").innerHTML = data.content;
+        }
+
+        // Navigate to quiz
+        function showQuiz() {
+            window.location.href = `/quiz?topic_id=${topicId}&learning_path_id=${learningPathId}`;
+        }
+
+        // Navigate to exams
+        function showExams() {
+            window.location.href = `/quiz?learning_path_id=${learningPathId}`;
+        }
+
+        // Go back to roadmap
+        function goBack() {
+            window.location.href = `/roadmap/${learningPathId}`;
+        }
+        // Mark topic as complete
+        async function completeTopic(topicId) {
+            const response = await fetch(`${API_URL}/update_topic_progress`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ topic_id: topicId, completed: true }),
+                credentials: "include"
+            });
+            if (response.ok) {
+                location.reload();
+            } else {
+                const error = await response.json();
+                document.getElementById("statusMessage").textContent = `❌ Error: ${error.error}`;
+            }
+        }
+
+        // Show feedback form
+        function showFeedbackForm(topicId) {
+            document.getElementById("feedbackTopicId").value = topicId;
+            document.getElementById("feedbackForm").style.display = "block";
+        }
+
+        // Submit feedback
+        async function submitFeedback() {
+            const topicId = document.getElementById("feedbackTopicId").value;
+            const performanceScore = document.getElementById("performanceScore").value;
+            const feedbackText = document.getElementById("feedbackText").value;
+            const newInterest = document.getElementById("newInterest").value;
+
+            const data = {
+                topic_id: parseInt(topicId),
+                performance_score: performanceScore ? parseFloat(performanceScore) : null,
+                feedback: feedbackText || null,
+                new_interest: newInterest || null
+            };
+
+            const response = await fetch(`${API_URL}/update_topic_progress`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+                credentials: "include"
+            });
+            if (response.ok) {
+                document.getElementById("feedbackForm").style.display = "none";
+                location.reload();
+            } else {
+                const error = await response.json();
+                document.getElementById("statusMessage").textContent = `❌ Error: ${error.error}`;
+            }
+        }
+
+        // Initialize
+        loadContent();
+    </script>
+</body>
+</html>

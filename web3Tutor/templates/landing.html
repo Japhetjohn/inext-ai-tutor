@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iNextAI - Web3 Learning Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="landing-container">
+        <header class="hero-section">
+            <h1 class="neon-text">iNextAI Tutor</h1>
+            <p class="subtitle">The Web3 Learning Companion</p>
+        </header>
+        
+        <section class="features">
+            <div class="feature-card">
+                <h3>Personalized Learning</h3>
+                <p>AI-powered courses tailored to your level</p>
+            </div>
+            <div class="feature-card">
+                <h3>Web3 Integration</h3>
+                <p>Connect your wallet and track progress on-chain</p>
+            </div>
+            <div class="feature-card">
+                <h3>Interactive Learning</h3>
+                <p>Hands-on exercises and real-world projects</p>
+            </div>
+        </section>
+        
+        <section class="cta">
+            <a href="/login" class="btn-neon">Get Started</a>
+            <a href="/dashboard" class="btn-neon">Continue Learning</a>
+        </section>
+    </div>
+    
+    <script src="{{ url_for('static', path='js/scripts.js') }}"></script>
+</body>
+</html>

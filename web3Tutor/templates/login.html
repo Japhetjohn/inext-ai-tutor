@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Register | iNextAI</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Google Fonts (Orbitron for Cyberpunk) -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1f 100%);
+            color: #e0e0ff;
+            font-family: 'Orbitron', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .neon-text {
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+        }
+
+        .container {
+            max-width: 400px;
+            margin-top: 50px;
+            padding: 20px;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #343a40, #00ffff);
+            color: #1a1a3c;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 1);
+            transition: all 0.3s ease;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00ffff, #007bff);
+            color: #0f0f1f;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.9), 0 0 30px rgba(255, 0, 255, 0.9);
+            color: #ffffff;
+        }
+
+        .a {
+            color: rgb(92, 237, 19);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #statusMessage {
+            color: #ffcc00;
+            text-shadow: 0 0 5px rgba(255, 204, 0, 0.7);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container text-center">
+        <h2 id="formTitle" class="neon-text">Login</h2>
+
+        <!-- Register & Login Forms -->
+        <!-- Register Form -->
+        <form id="registerForm" class="hidden" action="/register" method="POST">
+            <input type="text" name="username" id="registerUsername" class="form-control my-2" placeholder="Username" required>
+            <input type="email" name="email" id="registerEmail" class="form-control my-2" placeholder="Email" required>
+            <input type="password" name="password" id="registerPassword" class="form-control my-2" placeholder="Password" required>
+            <button type="submit" class="btn btn-success w-100">Register</button>
+            <p class="mt-3">Already have an account? <a class="a" href="#" onclick="toggleForms()">Login</a></p>
+        </form>
+
+        <!-- Login Form -->
+        <form id="loginForm" action="/login" method="POST">
+            <input type="text" name="username" id="loginUsername" class="form-control my-2" placeholder="Username" required>
+            <input type="password" name="password" id="loginPassword" class="form-control my-2" placeholder="Password" required>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+            <p class="mt-3">New user? <a class="a" href="#" onclick="toggleForms()">Register</a></p>
+        </form>
+
+        <!-- Logout Button -->
+        <button id="logoutBtn" class="btn btn-danger hidden mt-3 w-100" onclick="logout()">Logout</button>
+
+        <p id="statusMessage" class="mt-3"></p>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000";
+
+        // Toggle Login & Register Forms
+        function toggleForms() {
+            document.getElementById("loginForm").classList.toggle("hidden");
+            document.getElementById("registerForm").classList.toggle("hidden");
+            document.getElementById("formTitle").innerText = document.getElementById("loginForm").classList.contains("hidden") ? "Register" : "Login";
+            document.getElementById("statusMessage").innerText = "";
+        }
+
+        // Logout
+        async function logout() {
+            try {
+                const response = await fetch(`${API_URL}/logout`, {
+                    method: "POST"
+                });
+                if (response.ok) {
+                    window.location.href = "/login";
+                } else {
+                    throw new Error("Logout failed");
+                }
+            } catch (error) {
+                console.error("Logout error:", error);
+                document.getElementById("statusMessage").innerText = `❌ Error: ${error.message}`;
+            }
+        }
+
+        // Check Login State on Page Load
+        async function checkLoginState() {
+            try {
+                const response = await fetch(`${API_URL}/dashboard`, {
+                    method: "GET"
+                });
+                if (response.ok) {
+                    window.location.href = "/dashboard";
+                }
+            } catch (error) {
+                console.error("Check login state error:", error);
+            }
+        }
+
+        // Run on Page Load
+        document.addEventListener("DOMContentLoaded", () => {
+            checkLoginState();
+        });
+    </script>
+</body>
+</html>
