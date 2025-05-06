@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Success | iNext AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1a1a2e;
+            --text: #ecf0f1;
+            --primary: #3498db;
+        }
+        
+        body {
+            background: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        .success-container {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: #2ecc71;
+            margin-bottom: 1rem;
+        }
+        
+        .redirect-text {
+            margin-top: 1rem;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-icon">✓</div>
+        <h1>Registration Successful!</h1>
+        <p>Your account has been created successfully.</p>
+        <p class="redirect-text">Redirecting to login page in <span id="countdown">5</span> seconds...</p>
+    </div>
+    
+    <script>
+        let count = 5;
+        const countdown = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            count--;
+            countdown.textContent = count;
+            if (count <= 0) {
+                clearInterval(timer);
+                window.location.href = '/';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

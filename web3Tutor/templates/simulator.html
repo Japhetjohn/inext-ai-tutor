@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Simulator | iNext AI</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="dark-theme">
+    <div class="simulator-container">
+        <h1>Trading Simulator</h1>
+        
+        <div class="trading-interface">
+            <div class="market-info">
+                <h2>Market Overview</h2>
+                <div class="price-chart" id="priceChart"></div>
+            </div>
+            
+            <div class="trading-controls">
+                <div class="balance-info">
+                    <h3>Account Balance</h3>
+                    <p>$<span id="accountBalance">10000.00</span></p>
+                </div>
+                
+                <div class="trading-form">
+                    <select id="tradingPair">
+                        <option value="BTC/USD">BTC/USD</option>
+                        <option value="ETH/USD">ETH/USD</option>
+                        <option value="SOL/USD">SOL/USD</option>
+                    </select>
+                    
+                    <input type="number" id="tradeAmount" placeholder="Amount">
+                    
+                    <div class="trade-buttons">
+                        <button onclick="executeTrade('buy')" class="btn-buy">Buy</button>
+                        <button onclick="executeTrade('sell')" class="btn-sell">Sell</button>
+                    </div>
+                </div>
+                
+                <div class="portfolio">
+                    <h3>Your Portfolio</h3>
+                    <div id="portfolioList"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="trade-history">
+            <h2>Trade History</h2>
+            <div id="tradeHistoryList"></div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/simulator.js"></script>
+</body>
+</html>

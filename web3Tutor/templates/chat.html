@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat | Web3 AI Tutor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="dark-theme">
+    <div class="layout">
+        <nav class="sidebar">
+            <div class="brand">
+                <i class='bx bx-bot'></i>
+                <span>Web3 AI Tutor</span>
+            </div>
+
+            <div class="user-profile">
+                <img src="/static/images/ai-avatar.png" alt="AI Assistant" class="avatar">
+                <h3>AI Assistant</h3>
+                <span class="level">Web3 Expert</span>
+            </div>
+
+            <div class="nav-menu">
+                <a href="/dashboard" class="nav-link">
+                    <i class='bx bx-home'></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/chat" class="nav-link active">
+                    <i class='bx bx-message-square-dots'></i>
+                    <span>AI Chat</span>
+                </a>
+                <a href="/learning" class="nav-link">
+                    <i class='bx bx-book-open'></i>
+                    <span>Learning</span>
+                </a>
+                <a href="/simulator" class="nav-link">
+                    <i class='bx bx-trending-up'></i>
+                    <span>Simulator</span>
+                </a>
+                <a href="/community" class="nav-link">
+                    <i class='bx bx-group'></i>
+                    <span>Community</span>
+                </a>
+                <a href="/settings" class="nav-link">
+                    <i class='bx bx-cog'></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>AI Assistant</h2>
+                    <p>Ask me anything about Web3</p>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="welcome-message">
+                        <h3>Welcome to Web3 AI Tutor!</h3>
+                        <p>I'm your personal Web3 learning assistant. How can I help you today?</p>
+                        <div class="suggested-topics">
+                            <button class="topic-btn">Blockchain Basics</button>
+                            <button class="topic-btn">Smart Contracts</button>
+                            <button class="topic-btn">DeFi Concepts</button>
+                            <button class="topic-btn">NFT Development</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <textarea id="messageInput" placeholder="Type your message..." rows="1"></textarea>
+                    <button id="sendBtn" class="send-btn">
+                        <i class='bx bx-send'></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/static/js/chat.js"></script>
+</body>
+</html>

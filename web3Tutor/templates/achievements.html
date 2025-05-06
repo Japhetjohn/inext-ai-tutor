@@ -1,0 +1,39 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="achievements-container">
+    <h1>Your Achievements</h1>
+    
+    <div class="stats-overview">
+        <div class="stat-card">
+            <i class='bx bx-time'></i>
+            <h3>Time Spent Learning</h3>
+            <p>{{ (user.time_spent/60)|round|int }} hours</p>
+        </div>
+        <div class="stat-card">
+            <i class='bx bx-trophy'></i>
+            <h3>XP Points</h3>
+            <p>{{ user.xp_points }}</p>
+        </div>
+    </div>
+
+    <div class="achievements-grid">
+        {% set badges = user.badges|fromjson %}
+        {% for badge in badges %}
+        <div class="achievement-card">
+            <i class='bx bx-medal'></i>
+            <h3>{{ badge }}</h3>
+            <p>Achievement unlocked!</p>
+        </div>
+        {% endfor %}
+        
+        {% if not badges %}
+        <div class="achievement-card locked">
+            <i class='bx bx-medal'></i>
+            <h3>First Steps</h3>
+            <p>Complete your first course to unlock</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

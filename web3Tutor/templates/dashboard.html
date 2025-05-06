@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | iNext AI</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="brand">iNext AI</h1>
+            </div>
+
+            <div class="theme-switch">
+        <button id="themeToggle" class="btn btn-sm">
+            <i class='bx bx-moon'></i> Theme
+        </button>
+    </div>
+    
+    
+
+    <div class="user-profile">
+                <div class="profile-info">
+                    <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ user.username }}" alt="Profile" class="avatar">
+                    <h3>{{ user.username }}</h3>
+                    <span class="level">Level {{ user.level|default(1) }}</span>
+                </div>
+
+                <div class="wallet-section">
+                    <div class="wallet-connect">
+                        <select id="walletSelect" class="form-control mb-2">
+                            <option value="" selected>Select Wallet</option>
+                            <option value="metamask">MetaMask</option>
+                            <option value="bybit">Bybit Wallet</option>
+                            <option value="coinbase">Coinbase Wallet</option>
+                            <option value="walletconnect">WalletConnect</option>
+                        </select>
+                        <button id="connectWalletBtn" class="btn btn-primary w-100">Connect</button>
+                    </div>
+                    <small class="text-muted">Wallet: <span id="walletAddress">Not Connected</span></small>
+                </div>
+            </div>
+
+            <div class="nav-menu">
+                <a href="/dashboard" class="nav-link active">
+                    <i class='bx bxs-dashboard'></i> Dashboard
+                </a>
+                <a href="/learning" class="nav-link">
+                    <i class='bx bx-book-open'></i> Learning Paths
+                </a>
+                <a href="/simulator" class="nav-link">
+                    <i class='bx bx-line-chart'></i> Trading Simulator
+                </a>
+                <a href="/chat" class="nav-link">
+                    <i class='bx bx-chat'></i> AI Chat
+                </a>
+                <a href="/achievements" class="nav-link">
+                    <i class='bx bx-trophy'></i> Achievements
+                </a>
+                <a href="/community" class="nav-link">
+                    <i class='bx bx-group'></i> Community
+                </a>
+                <a href="/settings" class="nav-link">
+                    <i class='bx bx-cog'></i> Settings
+                </a>
+                <a href="/logout" class="nav-link">
+                    <i class='bx bx-log-out'></i> Logout
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Progress Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class='bx bx-time'></i>
+                    <div class="stat-info">
+                        <h4>Time Spent</h4>
+                        <p>{{ user.time_spent|default('0h') }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class='bx bx-trophy'></i>
+                    <div class="stat-info">
+                        <h4>XP Points</h4>
+                        <p>{{ user.xp_points|default(0) }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class='bx bx-task'></i>
+                    <div class="stat-info">
+                        <h4>Completed Courses</h4>
+                        <p>{{ user.completed_courses|default(0) }}/{{ total_courses|default(0) }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class='bx bx-medal'></i>
+                    <div class="stat-info">
+                        <h4>Badges Earned</h4>
+                        <p>{{ user.badges|default(0) }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Paths -->
+            <div class="section learning-paths">
+                <h2>Your Learning Journey</h2>
+                <div class="paths-grid">
+                    <!-- Basic Level -->
+                    <div class="path-card" data-level="basic">
+                        <div class="path-header">
+                            <h3>Basic: Newbies Pack</h3>
+                            <span class="badge {{ 'active' if user.current_level == 'basic' }}">
+                                {{ user.basic_progress|default(0) }}% Complete
+                            </span>
+                        </div>
+                        <div class="path-content">
+                            <ul>
+                                <li>Introduction to Web3</li>
+                                <li>Blockchain Basics</li>
+                                <li>Cryptocurrency 101</li>
+                                <li>DeFi Fundamentals</li>
+                            </ul>
+                            <button class="btn btn-primary" onclick="startPath('basic')">
+                                {{ 'Continue' if user.current_level == 'basic' else 'Start' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Level -->
+                    <div class="path-card" data-level="advanced">
+                        <div class="path-header">
+                            <h3>Advanced: Web3 Practitioner</h3>
+                            <span class="badge {{ 'active' if user.current_level == 'advanced' }}">
+                                {{ user.advanced_progress|default(0) }}% Complete
+                            </span>
+                        </div>
+                        <div class="path-content">
+                            <ul>
+                                <li>Smart Contracts</li>
+                                <li>DeFi Trading</li>
+                                <li>NFT Creation</li>
+                                <li>DAO Governance</li>
+                            </ul>
+                            <button class="btn btn-primary" onclick="startPath('advanced')" 
+                                    {{ 'disabled' if not user.basic_completed }}>
+                                {{ 'Locked' if not user.basic_completed else 'Start' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Expert Level -->
+                    <div class="path-card" data-level="expert">
+                        <div class="path-header">
+                            <h3>Expert: Web3 Builder</h3>
+                            <span class="badge {{ 'active' if user.current_level == 'expert' }}">
+                                {{ user.expert_progress|default(0) }}% Complete
+                            </span>
+                        </div>
+                        <div class="path-content">
+                            <ul>
+                                <li>DApp Development</li>
+                                <li>Smart Contract Auditing</li>
+                                <li>Advanced Trading</li>
+                                <li>Tokenomics</li>
+                            </ul>
+                            <button class="btn btn-primary" onclick="startPath('expert')"
+                                    {{ 'disabled' if not user.advanced_completed }}>
+                                {{ 'Locked' if not user.advanced_completed else 'Start' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes Section -->
+            <div class="section notes">
+                <h2>Learning Notes</h2>
+                <div class="notes-container">
+                    <textarea id="userNotes" placeholder="Take notes during your learning journey...">{{ user.notes|default('') }}</textarea>
+                    <button class="btn btn-primary" onclick="saveNotes()">Save Notes</button>
+                </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="section leaderboard">
+                <h2>Top Learners</h2>
+                <div class="leaderboard-list">
+                    {% for learner in top_learners %}
+                    <div class="leaderboard-item">
+                        <span class="rank">{{ loop.index }}</span>
+                        <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ learner.username }}" alt="User" class="avatar">
+                        <span class="username">{{ learner.username }}</span>
+                        <span class="points">{{ learner.xp_points }} XP</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+    <script>
+        // Your existing JavaScript
+        document.addEventListener('DOMContentLoaded', () => {
+            // Level selection
+            const levelOptions = document.querySelectorAll('.level-option');
+            levelOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    levelOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                });
+            });
+
+            // Your existing event listeners and functions
+            const generateBtn = document.getElementById("generateLearningPathBtn");
+            if (generateBtn) {
+                generateBtn.addEventListener("click", generateLearningPath);
+            }
+        });
+
+        const API_URL = "http://127.0.0.1:8000";
+        const userId = "{{ user.id }}";
+
+        // Show/hide steps
+        function showStep(step) {
+            document.querySelectorAll(".wizard-step").forEach(s => s.style.display = "none");
+            document.getElementById(`step-${step}`).style.display = "block";
+
+            if (step === 2) {
+                document.querySelectorAll("input[name='hours']").forEach(radio => {
+                    radio.addEventListener("change", () => {
+                        document.getElementById("manualHours").style.display = radio.value === "manual" ? "block" : "none";
+                    });
+                });
+            }
+        }
+
+        // Arrays for Web3, Blockchain, and Smart Contract Definitions
+        const definitions = [
+            { topic: "Web3", text: "Web3 is the decentralized internet, powered by blockchain technology.", quote: '"The future of the internet is decentralized, and Web3 is leading the way." - Vitalik Buterin' },
+            { topic: "Web3", text: "Web3 represents the next generation of the internet, focusing on user sovereignty and data ownership.", quote: '"Web3 empowers users to take control of their digital lives." - Gavin Wood' },
+            { topic: "Web3", text: "Web3 is a vision of the internet where users interact through peer-to-peer networks without intermediaries.", quote: '"Decentralization through Web3 is the key to a fairer internet." - Anonymous' },
+            { topic: "Blockchain", text: "Blockchain is a secure and transparent digital ledger for recording transactions across a network.", quote: '"Blockchain is the tech. Bitcoin is merely the first mainstream manifestation of its potential." - Marc Kenigsberg' },
+            { topic: "Blockchain", text: "Blockchain ensures immutability and trust in decentralized systems through cryptographic techniques.", quote: '"Blockchain does not guarantee trust; it provides a framework to establish it." - Don Tapscott' },
+            { topic: "Blockchain", text: "Blockchain technology underpins cryptocurrencies like Bitcoin, enabling secure and verifiable transactions.", quote: '"The blockchain is an incorruptible digital ledger of economic transactions." - Anonymous' },
+            { topic: "Smart Contracts", text: "Smart contracts are self-executing contracts with the terms directly written into code on the blockchain.", quote: '"Smart contracts are the building blocks of decentralized applications." - Nick Szabo' },
+            { topic: "Smart Contracts", text: "Smart contracts automate agreements, reducing the need for intermediaries and ensuring transparency.", quote: '"With smart contracts, trust is coded into the system." - Anonymous' },
+            { topic: "Smart Contracts", text: "Smart contracts execute automatically when predefined conditions are met, enhancing efficiency.", quote: '"Smart contracts will revolutionize how we handle agreements in the digital age." - Anonymous' }
+        ];
+
+        let index = 0;
+
+        // Function to update the intro text with a fade effect
+        function updateIntroText() {
+            const introElement = document.getElementById("intro-text");
+            introElement.classList.add("fade");
+            setTimeout(() => {
+                const entry = definitions[index];
+                introElement.innerText = `${entry.text}\n\n${entry.quote}`;
+                introElement.classList.remove("fade");
+                index = (index + 1) % definitions.length;
+            }, 1000);
+        }
+
+        // Set interval to update every 5 seconds
+        setInterval(updateIntroText, 5000);
+        updateIntroText();
+
+        // Generate learning path
+        async function generateLearningPath(event) {
+            event.preventDefault(); // Ensure event is defined
+            console.log("Event received:", event);
+
+            const pathSubject = document.getElementById("pathSubject").value;
+            const knowledgeLevel = document.querySelector('.level-option.selected').dataset.level;
+            //let weeklyHours = document.querySelector('input[name="hours"]:checked').value;
+            //if (weeklyHours === "manual") {
+            //    weeklyHours = document.getElementById("manualHours").value || "5"; // Default to 5 if manual input is empty
+            //}
+            //const learningStyle = document.querySelector('input[name="learningStyle"]:checked').value;
+
+            const data = {
+                path_subject: pathSubject,
+                knowledge_level: knowledgeLevel,
+                //weekly_hours: weeklyHours,
+                //learning_style: learningStyle
+            };
+
+            console.log("Sending data to /generate_learning_path:", data);
+            try {
+                const response = await fetch(`${API_URL}/generate_learning_path`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data),
+                    credentials: "include"
+                });
+
+                console.log("Response status:", response.status);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Failed to generate learning path");
+                }
+
+                const result = await response.json();
+                console.log("Learning path generated:", result);
+                window.location.href = `/roadmap/${result.learning_path_id}`;
+            } catch (error) {
+                console.error("Fetch error:", error);
+                document.getElementById("statusMessage").innerText = `❌ Error: ${error.message}`;
+            }
+        }
+
+
+        // Redirect to roadmap based on selected career path
+        async function redirectToRoadmap() {
+            const careerId = document.getElementById("careerSelect").value;
+            const statusMessage = document.getElementById("statusMessageCareer");
+            if (careerId) {
+                statusMessage.innerText = "⏳ Generating roadmap...";
+                try {
+                    const response = await fetch(`${API_URL}/generate_roadmap/${careerId}/${userId}`, {
+                        method: "GET",
+                        credentials: "include"
+                    });
+
+                    console.log("Response status:", response.status);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || "Failed to generate roadmap");
+                    }
+
+                    // Handle redirect
+                    if (response.redirected) {
+                        console.log("Redirected to:", response.url);
+                        window.location.href = response.url;
+                    } else {
+                        const result = await response.json();
+                        console.log("Roadmap generated:", result);
+                        window.location.href = `/roadmap/${result.learning_path_id}`;
+                    }
+                    statusMessage.innerText = "✅ Roadmap generated!";
+                } catch (error) {
+                    console.error("Error generating roadmap:", error);
+                    statusMessage.innerText = `❌ Error: ${error.message}`;
+                }
+            }
+        }
+
+        // Load wishlist
+        async function loadWishlist() {
+            const statusMessage = document.getElementById("statusMessageCareer");
+            statusMessage.innerText = "⏳ Loading wishlist...";
+            try {
+                const response = await fetch(`${API_URL}/wishlist?user_id=${userId}`, {
+                    method: "GET",
+                    credentials: "include"
+                });
+
+                console.log("Wishlist response status:", response.status);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Failed to load wishlist");
+                }
+
+                const wishlist = await response.json();
+                const wishlistDiv = document.getElementById("wishlist");
+                wishlistDiv.innerHTML = wishlist.map(item => `<p>${item.name}</p>`).join("");
+                statusMessage.innerText = "✅ Wishlist loaded!";
+            } catch (error) {
+                console.error("Error loading wishlist:", error);
+                statusMessage.innerText = `❌ Error: ${error.message}`;
+            }
+        }
+
+        loadWishlist();
+    </script>
+</body>
+</html>

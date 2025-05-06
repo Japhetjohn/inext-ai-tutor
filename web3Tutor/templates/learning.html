@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning | Web3 AI Tutor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h4 class="neon-text">Web3 AI Tutor</h4>
+            <div class="wallet-section">
+                <div class="wallet-status">
+                    <i class='bx bx-wallet'></i>
+                    <div>
+                        <p>Wallet Status</p>
+                        <span id="walletAddress" class="wallet-address">Not Connected</span>
+                    </div>
+                </div>
+                <button id="connectWalletBtn" class="btn-connect">
+                    <i class='bx bx-link'></i>
+                    Connect Wallet
+                </button>
+            </div>
+            
+            <div class="learning-stats">
+                <div class="stat-item">
+                    <i class='bx bx-book-open'></i>
+                    <div>
+                        <h6>Course Progress</h6>
+                        <p id="courseProgress">{{ completed_courses }}/{{ total_courses }}</p>
+                    </div>
+                </div>
+            </div>
+            <a href="/dashboard" class="btn-neon w-100 mt-3">Dashboard</a>
+            <a href="/logout" class="btn-neon w-100 mt-3">Logout</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <h2 class="neon-text">Your Learning Journey</h2>
+                <p class="subtitle">Master Web3 development through structured learning paths</p>
+            </div>
+            
+            <div class="learning-paths modern-grid">
+                {% for path in learning_paths %}
+                <div class="learning-card">
+                    <div class="card-header">
+                        <i class='bx {{ path.icon if path.icon else "bx-cube-alt" }}'></i>
+                        <h3>{{ path.name }}</h3>
+                    </div>
+                    <div class="card-content">
+                        <p class="path-description">{{ path.description }}</p>
+                        {% if path.topics %}
+                        <div class="progress-section">
+                            {% set completed = path.topics|selectattr('completed')|list|length %}
+                            {% set total = path.topics|length %}
+                            {% set progress = (completed / total * 100) if total > 0 else 0 %}
+                            <div class="progress-bar">
+                                <div class="progress" style="width: {{ '%.1f'|format(progress) }}%"></div>
+                            </div>
+                            <p class="progress-text">{{ completed }}/{{ total }} completed</p>
+                        </div>
+                        <div class="topics-preview">
+                            {% for topic in path.topics[:3] %}
+                            <div class="topic-item {% if topic.completed %}completed{% endif %}">
+                                <i class='bx {% if topic.completed %}bx-check-circle{% else %}bx-circle{% endif %}'></i>
+                                <span>{{ topic.topic_name }}</span>
+                            </div>
+                            {% endfor %}
+                            {% if path.topics|length > 3 %}
+                            <div class="topic-item more">
+                                <span>+{{ path.topics|length - 3 }} more topics</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        <a href="/roadmap/{{ path.id }}" class="btn-primary">Continue Learning</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/scripts.js"></script>
+</body>
+</html>
