@@ -1,0 +1,85 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    padding: 20px;
+    background-color: #f4f4f4;
+    text-align: center;
+}
+
+h1, h2 {
+    color: #333;
+}
+
+#intro-section {
+    background: #007bff;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.career-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.career-card {
+    background: white;
+    margin: 10px;
+    padding: 20px;
+    width: 250px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+
+h1 {
+    color: #333;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background: white;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
+}
+
+a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}

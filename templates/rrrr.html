@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roadmap | Infinity Academy</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #1a1a2e;
+            color: #e0e0ff;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 200px;
+            background: #0f0f1f;
+            padding: 20px;
+            border-right: 1px solid #00ffff;
+        }
+        .sidebar a {
+            color: #e0e0ff;
+            padding: 10px;
+            display: block;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .sidebar a.active {
+            background: #00ffff;
+            color: #0f0f1f;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+        .profile {
+            width: 200px;
+            padding: 20px;
+            background: #0f0f1f;
+            border-left: 1px solid #00ffff;
+        }
+        .neon-text {
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+        }
+        .btn-neon {
+            background: linear-gradient(45deg, #00ffff, #007bff);
+            color: #0f0f1f;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        .btn-neon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.9);
+        }
+        .module {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .module.completed {
+            background: #0f3d1f;
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        .module a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+        .module a:hover {
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+        }
+        .progress-bar {
+            background-color: #0f0f1f;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            height: 15px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        .completed-icon {
+            color: #00ff00;
+            font-size: 20px;
+            margin-left: 10px;
+        }
+        #nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h3>Infinity Academy</h3>
+            </div>
+            <a href="/chat" data-section="chat">AI Chat</a>
+            <a href="/dashboard" data-section="student">Student</a>
+            <a href="/exam" data-section="exams">Exams</a>
+            <a href="/progress" data-section="test-record">Progress</a>
+            <a href="#" data-section="settings">Settings</a>
+            <a href="#" data-section="support">Support</a>
+            <a href="#" data-section="community">Community</a>
+            <a href="/logout">Log out</a>
+            <button class="btn-neon mt-3">Upgrade</button>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="content">
+            <h1 class="neon-text">Roadmap: {{ learning_path.name or 'Learning Path #' + learning_path.id|string }}</h1>
+            <!-- Navigation Buttons -->
+            <nav class="mt-4 nav">
+                <a href="/dashboard" class="btn-neon m-2">Back to Dashboard</a>
+                <a href="/progress" class="btn-neon m-2">View Progress</a>
+            </nav>
+            <p>Progress: {{ topics | selectattr('completed') | list | length }}/{{ topics | length }} topics completed</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ (topics | selectattr('completed') | list | length) / topics | length * 100 if topics else 0 }}%;"></div>
+            </div>
+
+            <!-- Course Outline -->
+            <div id="course-outline" class="mt-4">
+                <h2>Course Outline</h2>
+                {% if topics %}
+                {% for topic in topics %}
+                <div class="module{% if topic.completed %} completed{% endif %}">
+                    <div>
+                        <a href="/course/{{ learning_path.id }}/{{ loop.index0 }}">{{ topic.topic_name }}</a>
+                        <p>{{ topic.abstract }} ({{ topic.estimated_time }})</p>
+                    </div>
+                    {% if topic.completed %}
+                    <span class="completed-icon">✔</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <p>No topics available.</p>
+                {% endif %}
+            </div>
+
+            <!-- Navigation Buttons -->
+            <nav class="mt-4 nav">
+                <a href="/dashboard" class="btn-neon m-2">Back to Dashboard</a>
+                <a href="/progress" class="btn-neon m-2">View Progress</a>
+            </nav>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="profile">
+            <h3>Profile</h3>
+            <p>{{ user.username }}<br>Level 3</p>
+            <div id="wishlist">
+                <!-- Wishlist items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        console.log("Hostname:", window.location.hostname);
+        const hostname = window.location.hostname;
+        const API_URL = (hostname.startsWith("localhost") || hostname.startsWith("127.0.0.1")) ? "http://127.0.0.1:8000" : "https://inextai.vercel.app";
+        console.log("API_URL:", API_URL);
+        const userId = "{{ user.id }}";
+
+        // Load wishlist
+        async function loadWishlist() {
+            try {
+                const response = await fetch(`${API_URL}/wishlist?user_id=${userId}`, {
+                    method: "GET",
+                    credentials: "include"
+                });
+                if (!response.ok) throw new Error("Failed to load wishlist");
+                const wishlist = await response.json();
+                document.getElementById("wishlist").innerHTML = wishlist.map(item => `<p>${item.name}</p>`).join("");
+            } catch (error) {
+                console.error("Error loading wishlist:", error);
+            }
+        }
+
+        loadWishlist();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roadmap | Infinity Academy</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #1a1a2e;
+            color: #e0e0ff;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 200px;
+            background: #0f0f1f;
+            padding: 20px;
+            border-right: 1px solid #00ffff;
+        }
+        .sidebar a {
+            color: #e0e0ff;
+            padding: 10px;
+            display: block;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .sidebar a.active {
+            background: #00ffff;
+            color: #0f0f1f;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+        .profile {
+            width: 200px;
+            padding: 20px;
+            background: #0f0f1f;
+            border-left: 1px solid #00ffff;
+        }
+        .neon-text {
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+        }
+        .btn-neon {
+            background: linear-gradient(45deg, #00ffff, #007bff);
+            color: #0f0f1f;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        .btn-neon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.9);
+        }
+        .module {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .module.completed {
+            background: #0f3d1f;
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        .module a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+        .module a:hover {
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+        }
+        .progress-bar {
+            background-color: #0f0f1f;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            height: 15px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        .completed-icon {
+            color: #00ff00;
+            font-size: 20px;
+            margin-left: 10px;
+        }
+        #nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .accordion-button { background: #1a1a2e; color: #fff; border: none; padding: 15px; }
+        .accordion-button:not(.collapsed) { background: #2a2a4e; color: #00ffcc; }
+        .accordion-button::after { box-shadow: 10px; color: #ff00ff; }
+        .accordion-button:focus { box-shadow: none; }
+        .accordion-body { background: #222238; color: #fff; padding: 15px; }
+        .content-type-label { font-size: 12px; color: #00cc99; margin-left: 10px; }
+        .completed-icon { color: #00ffcc; font-size: 18px; margin-left: 10px; }
+        .subtopics, .tasks { list-style: none; padding: 0; }
+        .subtopics li, .tasks li { margin: 10px 0; }
+        .video-link { color: #00ffcc; text-decoration: none; margin-left: 10px; }
+        .video-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h3>Infinity Academy</h3>
+            </div>
+            <a href="/chat" data-section="chat">AI Chat</a>
+            <a href="/dashboard" data-section="student">Student</a>
+            <a href="/exam" data-section="exams">Exams</a>
+            <a href="/progress" data-section="test-record">Progress</a>
+            <a href="#" data-section="settings">Settings</a>
+            <a href="#" data-section="support">Support</a>
+            <a href="#" data-section="community">Community</a>
+            <a href="/logout">Log out</a>
+            <button class="btn-neon mt-3">Upgrade</button>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="content">
+            <h1 class="neon-text"> {{ learning_path.name or 'Learning Path #' + learning_path.id|string }}</h1>
+            <!-- Navigation Buttons -->
+            <nav class="mt-4 nav">
+                <a href="/dashboard" class="btn-neon m-2">Back to Dashboard</a>
+                <a href="/progress" class="btn-neon m-2">View Progress</a>
+            </nav>
+            <p>Progress: {{ topics | selectattr('completed') | list | length }}/{{ topics | length }} topics completed</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ (topics | selectattr('completed') | list | length) / topics | length * 100 if topics else 0 }}%;"></div>
+            </div>
+
+            <!-- Course Outline -->
+            <div id="course-outline" class="mt-4">
+                <h2>Course Outline</h2>
+                {% if topics %}
+                <div class="accordion" id="courseAccordion">
+                    {% for topic in topics %}
+                    <div class="module{% if topic.completed %} completed{% endif %}">
+                        <div class="accordion-item">
+                            <!-- Handle different learning styles -->
+                            {% if learning_style == "video" %}
+                            <!-- Video Style -->
+                            <h2 class="accordion-header" id="heading{{ loop.index0 }}">
+                                <button style="color: #ff00ff;" class="accordion-button{% if not topic.completed %} collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index0 }}" aria-expanded="{{ 'true' if topic.completed else 'false' }}" aria-controls="collapse{{ loop.index0 }}">
+                                    {{ topic.title }} <span class="content-type-label">[Video]</span>
+                                    {% if topic.completed %}
+                                    <span class="completed-icon">✔</span>
+                                    {% endif %}
+                                </button>
+                            </h2>
+                            <div id="collapse{{ loop.index0 }}" class="accordion-collapse collapse{% if topic.completed %} show{% endif %}" aria-labelledby="heading{{ loop.index0 }}" data-bs-parent="#courseAccordion">
+                                <div class="accordion-body">
+                                    <p>{{ topic.description }}</p>
+                                    <ul class="subtopics">
+                                        {% for subtopic in topic.subtopics %}
+                                        <li>
+                                            <strong>{{ subtopic.title }}</strong>: {{ subtopic.description }} 
+                                            <a href="{{ subtopic.url }}" target="_blank" class="video-link">Watch Video</a>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% elif learning_style == "interactive_labs" %}
+                            <!-- Interactive Labs Style -->
+                            <h2 class="accordion-header" id="heading{{ loop.index0 }}">
+                                <button style="color: #ff00ff;" class="accordion-button{% if not topic.completed %} collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index0 }}" aria-expanded="{{ 'true' if topic.completed else 'false' }}" aria-controls="collapse{{ loop.index0 }}">
+                                    {{ topic.topic }} <span class="content-type-label">[Interactive Lab]</span>
+                                    {% if topic.completed %}
+                                    <span class="completed-icon">✔</span>
+                                    {% endif %}
+                                </button>
+                            </h2>
+                            <div id="collapse{{ loop.index0 }}" class="accordion-collapse collapse{% if topic.completed %} show{% endif %}" aria-labelledby="heading{{ loop.index0 }}" data-bs-parent="#courseAccordion">
+                                <div class="accordion-body">
+                                    <p>{{ topic.abstract }} ({{ topic.estimated_time }})</p>
+                                    <ul class="tasks">
+                                        {% for task in topic.tasks %}
+                                        <li>
+                                            <strong>{{ task.title }}</strong> - Tool: {{ task.tool }} | Outcome: {{ task.outcome }}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% else %}
+                            <!-- Articles Style (default) -->
+                            <h2 class="accordion-header" id="course-outline">
+                                <button style="color: #ff00ff;" class="accordion-button{% if not topic.completed %} collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index0 }}" aria-expanded="{{ 'true' if topic.completed else 'false' }}" aria-controls="collapse{{ loop.index0 }}">
+                                    <div><a href="/course/{{ learning_path.id }}/{{ loop.index0 }}">{{ topic.topic }}</a> <span class="content-type-label">[Article]</span></div>
+                                    {% if topic.completed %}
+                                    <span class="completed-icon">✔</span>
+                                    {% endif %}
+                                </button>
+                            </h2>
+                            <div id="collapse{{ loop.index0 }}" class="accordion-collapse collapse{% if topic.completed %} show{% endif %}" aria-labelledby="heading{{ loop.index0 }}" data-bs-parent="#courseAccordion">
+                                <div class="accordion-body">
+                                    <p>{{ topic.abstract }} ({{ topic.estimated_time }})</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>No topics available.</p>
+                {% endif %}
+            </div>
+
+            <!-- Navigation Buttons -->
+            <nav class="mt-4 nav">
+                <a href="/dashboard" class="btn-neon m-2">Back to Dashboard</a>
+                <a href="/progress" class="btn-neon m-2">View Progress</a>
+            </nav>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="profile">
+            <h3>Profile</h3>
+            <p>{{ user.username }}<br>Level 3</p>
+            <div id="wishlist">
+                <!-- Wishlist items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        console.log("Hostname:", window.location.hostname);
+        const hostname = window.location.hostname;
+        const API_URL = (hostname.startsWith("localhost") || hostname.startsWith("127.0.0.1")) ? "http://127.0.0.1:8000" : "https://inextai.vercel.app";
+        console.log("API_URL:", API_URL);
+        const userId = "{{ user.id }}";
+
+        // Load wishlist
+        async function loadWishlist() {
+            try {
+                const response = await fetch(`${API_URL}/wishlist?user_id=${userId}`, {
+                    method: "GET",
+                    credentials: "include"
+                });
+                if (!response.ok) throw new Error("Failed to load wishlist");
+                const wishlist = await response.json();
+                document.getElementById("wishlist").innerHTML = wishlist.map(item => `<p>${item.name}</p>`).join("");
+            } catch (error) {
+                console.error("Error loading wishlist:", error);
+            }
+        }
+
+
+        loadWishlist();
+    </script>
+</body>
+</html>

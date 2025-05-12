@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>API URL Display</title>
+</head>
+<body>
+  <h1>API URL Information</h1>
+  <div id="hostname-display"></div>
+  <div id="api-url-display"></div>
+
+  <script>
+    console.log("Hostname:", window.location.hostname);
+    const hostname = window.location.hostname;
+    const API_URL = (hostname.startsWith("localhost") || hostname.startsWith("127.0.0.1")) ? "http://127.0.0.1:8000" : "https://inextai.vercel.app";
+    console.log("API_URL:", API_URL);
+
+    // Get the elements where you want to display the information
+    const hostnameDisplay = document.getElementById("hostname-display");
+    const apiUrlDisplay = document.getElementById("api-url-display");
+
+    // Update the content of the HTML elements
+    hostnameDisplay.textContent = "Hostname: " + window.location.hostname;
+    apiUrlDisplay.textContent = "API URL: " + API_URL;
+  </script>
+</body>
+</html>

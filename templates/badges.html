@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Badges & Certificates | Infinity Academy</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #00ffff;
+            --neon-pink: #ff00ff;
+            --dark-bg: #0f0f1f;
+            --card-bg: #1a1a2e;
+            --text-color: #e0e0ff;
+            --accent-gold: #ffd700;
+            --light-bg: #f0f4f8;
+            --light-card-bg: #ffffff;
+            --light-text: #1a1a2e;
+            --light-accent: #007bff;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-bg), #1a1a3e);
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        body.light-theme {
+            background: linear-gradient(135deg, var(--light-bg), #e0e6ef);
+            color: var(--light-text);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            min-height: 100vh;
+        }
+
+        .neon-text {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+            margin-bottom: 20px;
+        }
+
+        body.light-theme .neon-text {
+            color: var(--light-accent);
+            text-shadow: none;
+        }
+
+        .badge-section, .exam-section, .user-badge-section {
+            margin-top: 30px;
+        }
+
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .badge-item {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--neon-cyan);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body.light-theme .badge-item {
+            background: var(--light-card-bg);
+            border-color: var(--light-accent);
+        }
+
+        .badge-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .badge-image {
+            width: 150px;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 2px solid var(--neon-pink);
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+        }
+
+        body.light-theme .badge-image {
+            border-color: var(--light-accent);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+        }
+
+        .pdf-placeholder {
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 2px solid var(--neon-pink);
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        body.light-theme .pdf-placeholder {
+            border-color: var(--light-accent);
+            background: rgba(0, 123, 255, 0.1);
+            color: var(--light-text);
+        }
+
+        .badge-item p {
+            margin: 0 0 10px;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        body.light-theme .badge-item p {
+            color: var(--light-text);
+        }
+
+        .btn-neon {
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-pink));
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body.light-theme .btn-neon {
+            background: linear-gradient(45deg, var(--light-accent), #00ccff);
+        }
+
+        .btn-neon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .badge-grid {
+                grid-template-columns: 1fr;
+            }
+            .badge-image, .pdf-placeholder {
+                width: 120px;
+            }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <div class="container">
+        <h1 class="neon-text text-center">Your Badges & Certificates</h1>
+        <nav class="text-center mb-4">
+            <a href="/dashboard" class="btn-neon back-btn">Back to Dashboard</a>
+        </nav>
+
+        <!-- User Badges -->
+        <div class="user-badge-section">
+            <h2 class="neon-text">Achievement Badges</h2>
+            {% if user_badges %}
+            <div class="badge-grid">
+                {% for badge in user_badges %}
+                <div class="badge-item">
+                    {% if badge.badge_png_path %}
+                    <img src="/{{ badge.badge_png_path }}" alt="{{ badge.name }}" class="badge-image">
+                    {% else %}
+                    <div class="pdf-placeholder">Badge Image Unavailable</div>
+                    {% endif %}
+                    <p>{{ badge.name }}</p>
+                    {% if badge.badge_png_path %}
+                    <a href="/{{ badge.badge_png_path }}" download="{{ badge.name|lower|replace(' ', '_') }}.png" class="btn-neon">Download PNG</a>
+                    {% endif %}
+                    {% if badge.badge_pdf_path %}
+                    <a href="/{{ badge.badge_pdf_path }}" download="{{ badge.name|lower|replace(' ', '_') }}.pdf" class="btn-neon">Download PDF</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>No achievement badges earned yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Quiz Badges -->
+        <div class="badge-section">
+            <h2 class="neon-text">Quiz Badges</h2>
+            {% if quiz_badges %}
+            <div class="badge-grid">
+                {% for badge in quiz_badges %}
+                <div class="badge-item">
+                    {% if badge.badge_png_path %}
+                    <img src="/{{ badge.badge_png_path }}" alt="Quiz Badge" class="badge-image">
+                    {% else %}
+                    <div class="pdf-placeholder">Badge Image Unavailable</div>
+                    {% endif %}
+                    <p>{{ badge.learning_path_name }} - {{ badge.module_name }}</p>
+                    {% if badge.badge_png_path %}
+                    <a href="/{{ badge.badge_png_path }}" download="quiz_badge_{{ badge.topic_id }}.png" class="btn-neon">Download PNG</a>
+                    {% endif %}
+                    {% if badge.badge_pdf_path %}
+                    <a href="/{{ badge.badge_pdf_path }}" download="quiz_badge_{{ badge.topic_id }}.pdf" class="btn-neon">Download PDF</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>No quiz badges earned yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Exam Badges and Certificates -->
+        <div class="exam-section">
+            <h2 class="neon-text">Exam Rewards & Certificates</h2>
+            {% if exam_rewards %}
+            <div class="badge-grid">
+                {% for reward in exam_rewards %}
+                <!-- Exam Badge -->
+                <div class="badge-item">
+                    {% if reward.exam_badge_png_path %}
+                    <img src="/{{ reward.exam_badge_png_path }}" alt="Exam Badge" class="badge-image">
+                    {% else %}
+                    <div class="pdf-placeholder">Badge Image Unavailable</div>
+                    {% endif %}
+                    <p>{{ reward.learning_path_name }} - Exam Badge</p>
+                    {% if reward.exam_badge_png_path %}
+                    <a href="/{{ reward.exam_badge_png_path }}" download="exam_badge_{{ reward.learning_path_id }}.png" class="btn-neon">Download PNG</a>
+                    {% endif %}
+                    {% if reward.exam_badge_pdf_path %}
+                    <a href="/{{ reward.exam_badge_pdf_path }}" download="exam_badge_{{ reward.learning_path_id }}.pdf" class="btn-neon">Download PDF</a>
+                    {% endif %}
+                </div>
+                <!-- Certificate -->
+                {% if reward.certificate_pdf_path %}
+                <div class="badge-item">
+                    <div class="pdf-placeholder">Certificate Preview</div>
+                    <p>{{ reward.learning_path_name }} - Certificate</p>
+                    <a href="/{{ reward.certificate_pdf_path }}" download="certificate_{{ reward.learning_path_id }}.pdf" class="btn-neon">Download PDF</a>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>No exam rewards or certificates earned yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize theme based on user preference (consistent with dashboard)
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.body.classList.toggle('light-theme', savedTheme === 'light');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+        });
+    </script>
+</body>
+</html>

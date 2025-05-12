@@ -1,0 +1,23 @@
+sqlalchemy==2.0.28
+pydantic
+web3
+bcrypt
+itsdangerous
+pyjwt
+pydantic
+pydantic-settings
+aiofiles
+python-multipart
+psycopg2-binary  # For PostgreSQL support with SQLAlchemy (adjust based on your DB)
+python-jose  # For JWT or authentication if used with FastAPI
+python-multipart  # For handling form data with FastAPI
+aiohttp # For asynchronous HTTP requests if needed with WebSockets
+websockets # For WebSocket support in FastAPI
+fastapi
+pydantic
+passlib==1.7.4
+jinja2
+python-dotenv==1.0.0
+uvicorn==0.34.0
+openai==1.65.2
+requests==2.31.0

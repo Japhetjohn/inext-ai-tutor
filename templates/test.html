@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Infinity Academy</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            background: #1a1a2e;
+            color: #e0e0ff;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 200px;
+            background: #0f0f1f;
+            padding: 20px;
+            border: 2px solid #00ffff;
+        }
+        .sidebar a {
+            color: #e0e0ff;
+            padding: 10px;
+            display: block;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .sidebar a.active {
+            background: #00ffff;
+            color: #0f0f1f;
+        }
+        .content {
+            flex: 1;
+            margin-left: 150px;
+            margin-right: 150px;
+        }
+        .profile {
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100vh;
+            width: 200px;
+            padding: 20px;
+            border: 2px solid #00ffff;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            color: #ffffff;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            
+        }
+        .neon-text {
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+        }
+        .btn-neon {
+            background: linear-gradient(45deg, #00ffff, #007bff);
+            color: #0f0f1f;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        .btn-neon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.9);
+        }
+        #intro-text {
+            color: goldenrod;
+            font-size: larger;
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
+        }
+        #intro-text.fade {
+            opacity: 0;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 20px;
+            background: #343a40;
+            border-radius: 10px;
+            border: 1px solid #00ffff;
+        }
+        .step input[type="text"], .step input[type="radio"] {
+            margin: 10px 0;
+        }
+        .step label {
+            margin-right: 20px;
+        }
+        /* .learning-path {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        } */
+        .progress-bar {
+            background-color: #1a1a2e;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            height: 15px;
+            width: 300px;
+            margin: 0 10px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        .learning-path {
+        position: relative;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    }
+    .path-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .path-details {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .mastered-badge {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #ff00cc, #3333ff);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 0 15px rgba(255, 0, 204, 0.7);
+        animation: glow 2s infinite alternate;
+    }
+    .badge-text {
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        transform: rotate(-10deg);
+    }
+    .exam-prompt {
+        color: #00ffcc;
+        font-size: 14px;
+        font-style: italic;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        text-shadow: 0 0 5px rgba(0, 255, 204, 0.5);
+    }
+    @keyframes glow {
+        0% { box-shadow: 0 0 10px rgba(255, 0, 204, 0.7), 0 0 20px rgba(51, 51, 255, 0.5); }
+        100% { box-shadow: 0 0 20px rgba(255, 0, 204, 1), 0 0 30px rgba(51, 51, 255, 0.8); }
+    }
+    /* @media (max-width: 1200px) {
+        .sidebar { width: 200px; }
+        .content { margin-left: 220px; margin-right: 220px; }
+        .profile { width: 200px; }
+    }
+    @media (max-width: 768px) {
+        .sidebar { width: 100%; height: auto; position: static; box-shadow: none; }
+        .content { margin-left: 0; margin-right: 0; }
+        .profile { width: 100%; height: auto; position: static; box-shadow: none; padding: 20px 0; }
+    } */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h3>Infinity Academy</h3>
+                <hr/>
+            </div>
+            <p>Wallet: <span id="walletAddress">Not Connected</span></p>
+            <select id="walletSelect" class="form-control mb-3">
+                <option value="" selected>Select Wallet</option>
+                <option value="metamask">MetaMask</option>
+                <option value="bybit">Bybit Wallet</option>
+                <option value="coinbase">Coinbase Wallet</option>
+                <option value="walletconnect">WalletConnect</option>
+            </select>
+            <button id="connectWalletBtn" class="btn-neon w-100 mb-3">Connect</button>
+            <a href="/chat" data-section="chat">AI Chat</a>
+            <a href="/dashboard" data-section="student" class="active">Dashboard</a>
+            <a href="/learning" data-section="exams">My Learning</a>
+            <a href="/exam" data-section="exams">Exams</a>
+            <a href="/badges" data-section="badges">Badges & Certificates</a>
+            <a href="#" data-section="test-record">Test Record</a>
+            <a href="#" data-section="settings">Settings</a>
+            <a href="#" data-section="support">Support</a>
+            <a href="#" data-section="community">Community</a>
+            <a href="/logout">Log out</a>
+            <button class="btn-neon mt-3">Upgrade</button>
+        </nav>
+
+        <!-- Profile Section -->
+        <div class="profile">
+            <h3 style="font-family: 18;">Profile</h3>
+            <hr/>
+            <p style="color: brown; font-size: x-large; font: bolder;">{{ user.username }}</p>
+            <p>Level 3</p>
+            <div style="color: chartreuse;" id="wishlist">
+                <!-- Wishlist items will be populated here -->
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Progress Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class='bx bx-time'></i>
+                    <div class="stat-info">
+                        <h4>Time Spent</h4>
+                        <p>{{ user.time_spent|default('0h') }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class='bx bx-trophy'></i>
+                    <div class="stat-info">
+                        <h4>XP Points</h4>
+                        <p>{{ user.xp_points|default(0) }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class='bx bx-task'></i>
+                    <div class="stat-info">
+                        <h4>Completed Courses</h4>
+                        <p>{{ user.completed_courses|default(0) }}/{{ total_courses|default(0) }}</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class='bx bx-medal'></i>
+                    <div class="stat-info">
+                        <h4>Badges Earned</h4>
+                        <p>{{ user.badges|default(0) }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Paths -->
+            <div class="section learning-paths">
+                <h2>Your Learning Journey</h2>
+                <div class="paths-grid">
+                    <!-- Basic Level -->
+                    <div class="path-card" data-level="basic">
+                        <div class="path-header">
+                            <h3>Basic: Newbies Pack</h3>
+                            <span class="badge {{ 'active' if user.current_level == 'basic' }}">
+                                {{ user.basic_progress|default(0) }}% Complete
+                            </span>
+                        </div>
+                        <div class="path-content">
+                            <ul>
+                                <li>Introduction to Web3</li>
+                                <li>Blockchain Basics</li>
+                                <li>Cryptocurrency 101</li>
+                                <li>DeFi Fundamentals</li>
+                            </ul>
+                            <button class="btn btn-primary" onclick="startPath('basic')">
+                                {{ 'Continue' if user.current_level == 'basic' else 'Start' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Level -->
+                    <div class="path-card" data-level="advanced">
+                        <div class="path-header">
+                            <h3>Advanced: Web3 Practitioner</h3>
+                            <span class="badge {{ 'active' if user.current_level == 'advanced' }}">
+                                {{ user.advanced_progress|default(0) }}% Complete
+                            </span>
+                        </div>
+                        <div class="path-content">
+                            <ul>
+                                <li>Smart Contracts</li>
+                                <li>DeFi Trading</li>
+                                <li>NFT Creation</li>
+                                <li>DAO Governance</li>
+                            </ul>
+                            <button class="btn btn-primary" onclick="startPath('advanced')" 
+                                    {{ 'disabled' if not user.basic_completed }}>
+                                {{ 'Locked' if not user.basic_completed else 'Start' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Expert Level -->
+                    <div class="path-card" data-level="expert">
+                        <div class="path-header">
+                            <h3>Expert: Web3 Builder</h3>
+                            <span class="badge {{ 'active' if user.current_level == 'expert' }}">
+                                {{ user.expert_progress|default(0) }}% Complete
+                            </span>
+                        </div>
+                        <div class="path-content">
+                            <ul>
+                                <li>DApp Development</li>
+                                <li>Smart Contract Auditing</li>
+                                <li>Advanced Trading</li>
+                                <li>Tokenomics</li>
+                            </ul>
+                            <button class="btn btn-primary" onclick="startPath('expert')"
+                                    {{ 'disabled' if not user.advanced_completed }}>
+                                {{ 'Locked' if not user.advanced_completed else 'Start' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes Section -->
+            <div class="section notes">
+                <h2>Learning Notes</h2>
+                <div class="notes-container">
+                    <textarea id="userNotes" placeholder="Take notes during your learning journey...">{{ user.notes|default('') }}</textarea>
+                    <button class="btn btn-primary" onclick="saveNotes()">Save Notes</button>
+                </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="section leaderboard">
+                <h2>Top Learners</h2>
+                <div class="leaderboard-list">
+                    {% for learner in top_learners %}
+                    <div class="leaderboard-item">
+                        <span class="rank">{{ loop.index }}</span>
+                        <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ learner.username }}" alt="User" class="avatar">
+                        <span class="username">{{ learner.username }}</span>
+                        <span class="points">{{ learner.xp_points }} XP</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+    <script>
+        // Your existing JavaScript
+        document.addEventListener('DOMContentLoaded', () => {
+            // Level selection
+            const levelOptions = document.querySelectorAll('.level-option');
+            levelOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    levelOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                });
+            });
+
+            // Your existing event listeners and functions
+            const generateBtn = document.getElementById("generateLearningPathBtn");
+            if (generateBtn) {
+                generateBtn.addEventListener("click", generateLearningPath);
+            }
+        });
+
+        const API_URL = "http://127.0.0.1:8000";
+        const userId = "{{ user.id }}";
+
+        // Show/hide steps
+        function showStep(step) {
+            document.querySelectorAll(".wizard-step").forEach(s => s.style.display = "none");
+            document.getElementById(`step-${step}`).style.display = "block";
+
+            if (step === 2) {
+                document.querySelectorAll("input[name='hours']").forEach(radio => {
+                    radio.addEventListener("change", () => {
+                        document.getElementById("manualHours").style.display = radio.value === "manual" ? "block" : "none";
+                    });
+                });
+            }
+        }
+
+        // Arrays for Web3, Blockchain, and Smart Contract Definitions
+        const definitions = [
+            { topic: "Web3", text: "Web3 is the decentralized internet, powered by blockchain technology.", quote: '"The future of the internet is decentralized, and Web3 is leading the way." - Vitalik Buterin' },
+            { topic: "Web3", text: "Web3 represents the next generation of the internet, focusing on user sovereignty and data ownership.", quote: '"Web3 empowers users to take control of their digital lives." - Gavin Wood' },
+            { topic: "Web3", text: "Web3 is a vision of the internet where users interact through peer-to-peer networks without intermediaries.", quote: '"Decentralization through Web3 is the key to a fairer internet." - Anonymous' },
+            { topic: "Blockchain", text: "Blockchain is a secure and transparent digital ledger for recording transactions across a network.", quote: '"Blockchain is the tech. Bitcoin is merely the first mainstream manifestation of its potential." - Marc Kenigsberg' },
+            { topic: "Blockchain", text: "Blockchain ensures immutability and trust in decentralized systems through cryptographic techniques.", quote: '"Blockchain does not guarantee trust; it provides a framework to establish it." - Don Tapscott' },
+            { topic: "Blockchain", text: "Blockchain technology underpins cryptocurrencies like Bitcoin, enabling secure and verifiable transactions.", quote: '"The blockchain is an incorruptible digital ledger of economic transactions." - Anonymous' },
+            { topic: "Smart Contracts", text: "Smart contracts are self-executing contracts with the terms directly written into code on the blockchain.", quote: '"Smart contracts are the building blocks of decentralized applications." - Nick Szabo' },
+            { topic: "Smart Contracts", text: "Smart contracts automate agreements, reducing the need for intermediaries and ensuring transparency.", quote: '"With smart contracts, trust is coded into the system." - Anonymous' },
+            { topic: "Smart Contracts", text: "Smart contracts execute automatically when predefined conditions are met, enhancing efficiency.", quote: '"Smart contracts will revolutionize how we handle agreements in the digital age." - Anonymous' }
+        ];
+
+        let index = 0;
+
+        // Function to update the intro text with a fade effect
+        function updateIntroText() {
+            const introElement = document.getElementById("intro-text");
+            introElement.classList.add("fade");
+            setTimeout(() => {
+                const entry = definitions[index];
+                introElement.innerText = `${entry.text}\n\n${entry.quote}`;
+                introElement.classList.remove("fade");
+                index = (index + 1) % definitions.length;
+            }, 1000);
+        }
+
+        // Set interval to update every 5 seconds
+        setInterval(updateIntroText, 5000);
+        updateIntroText();
+
+        // Generate learning path
+        async function generateLearningPath(event) {
+            event.preventDefault(); // Ensure event is defined
+            console.log("Event received:", event);
+
+            const pathSubject = document.getElementById("pathSubject").value;
+            const knowledgeLevel = document.querySelector('.level-option.selected').dataset.level;
+            //let weeklyHours = document.querySelector('input[name="hours"]:checked').value;
+            //if (weeklyHours === "manual") {
+            //    weeklyHours = document.getElementById("manualHours").value || "5"; // Default to 5 if manual input is empty
+            //}
+            //const learningStyle = document.querySelector('input[name="learningStyle"]:checked').value;
+
+            const data = {
+                path_subject: pathSubject,
+                knowledge_level: knowledgeLevel,
+                //weekly_hours: weeklyHours,
+                //learning_style: learningStyle
+            };
+
+            console.log("Sending data to /generate_learning_path:", data);
+            try {
+                const response = await fetch(`${API_URL}/generate_learning_path`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data),
+                    credentials: "include"
+                });
+
+                console.log("Response status:", response.status);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Failed to generate learning path");
+                }
+
+                const result = await response.json();
+                console.log("Learning path generated:", result);
+                window.location.href = `/roadmap/${result.learning_path_id}`;
+            } catch (error) {
+                console.error("Fetch error:", error);
+                document.getElementById("statusMessage").innerText = `❌ Error: ${error.message}`;
+            }
+        }
+
+
+        // Redirect to roadmap based on selected career path
+        async function redirectToRoadmap() {
+            const careerId = document.getElementById("careerSelect").value;
+            const statusMessage = document.getElementById("statusMessageCareer");
+            if (careerId) {
+                statusMessage.innerText = "⏳ Generating roadmap...";
+                try {
+                    const response = await fetch(`${API_URL}/generate_roadmap/${careerId}/${userId}`, {
+                        method: "GET",
+                        credentials: "include"
+                    });
+
+                    console.log("Response status:", response.status);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || "Failed to generate roadmap");
+                    }
+
+                    // Handle redirect
+                    if (response.redirected) {
+                        console.log("Redirected to:", response.url);
+                        window.location.href = response.url;
+                    } else {
+                        const result = await response.json();
+                        console.log("Roadmap generated:", result);
+                        window.location.href = `/roadmap/${result.learning_path_id}`;
+                    }
+                    statusMessage.innerText = "✅ Roadmap generated!";
+                } catch (error) {
+                    console.error("Error generating roadmap:", error);
+                    statusMessage.innerText = `❌ Error: ${error.message}`;
+                }
+            }
+        }
+
+        // Dashboard Functionality
+        let timeSpent = parseInt(localStorage.getItem('timeSpent')) || 0;
+        let timerInterval;
+        let xpPoints = 100;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeSpent++;
+                localStorage.setItem('timeSpent', timeSpent);
+                updateTimeDisplay();
+                updateTimeOnServer();
+                
+                // Award XP points every 5 minutes
+                if (timeSpent % 300 === 0) {
+                    awardXPPoints(10);
+                    showNotification('Earned 10 XP points for dedication!', 'success');
+                }
+            }, 1000);
+        }
+
+        function awardXPPoints(points) {
+            xpPoints += points;
+            const xpDisplay = document.querySelector('.stat-info p');
+            if (xpDisplay) {
+                xpDisplay.textContent = xpPoints;
+            }
+        }
+
+        function updateTimeDisplay() {
+            const timeDisplay = document.querySelector('.stat-info p');
+            if (timeDisplay) {
+                const hours = Math.floor(timeSpent / 3600);
+                const minutes = Math.floor((timeSpent % 3600) / 60);
+                const seconds = timeSpent % 60;
+                timeDisplay.textContent = `${hours}h ${minutes}m ${seconds}s`;
+            }
+        }
+
+        async function updateTimeOnServer() {
+            if (timeSpent % 60 === 0) {
+                try {
+                    const response = await fetch('/api/update_time_spent', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ time: 1 })
+                    });
+                    if (!response.ok) throw new Error('Failed to update time');
+                } catch (error) {
+                    console.error('Error updating time:', error);
+                }
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            if (body) {
+                const isDark = body.classList.toggle('dark-theme');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                updateThemeElements(isDark);
+            }
+        }
+
+        function updateThemeElements(isDark) {
+            const root = document.documentElement;
+            if (root) {
+                if (isDark) {
+                    root.style.setProperty('--bg-dark', '#1a1a2e');
+                    root.style.setProperty('--text', '#ecf0f1');
+                    root.style.setProperty('--card-bg', '#16213e');
+                } else {
+                    root.style.setProperty('--bg-dark', '#ffffff');
+                    root.style.setProperty('--text', '#333333');
+                    root.style.setProperty('--card-bg', '#f5f5f5');
+                }
+            }
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const body = document.body;
+            if (body) {
+                body.classList.toggle('dark-theme', savedTheme === 'dark');
+                updateThemeElements(savedTheme === 'dark');
+            }
+        }
+
+        function setupNotesAutosave() {
+            const notesTextarea = document.getElementById('userNotes');
+            if (notesTextarea) {
+                let saveTimeout;
+                notesTextarea.addEventListener('input', () => {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(() => saveNotes(), 1000);
+                });
+            }
+        }
+
+        async function saveNotes() {
+            const notesTextarea = document.getElementById('userNotes');
+            if (!notesTextarea) return;
+
+            const notes = notesTextarea.value;
+            try {
+                const response = await fetch('/api/save_notes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes })
+                });
+
+                if (!response.ok) throw new Error('Failed to save notes');
+
+                const saveBtn = document.querySelector('.notes-container .btn');
+                if (saveBtn) {
+                    saveBtn.textContent = 'Saved!';
+                    setTimeout(() => saveBtn.textContent = 'Save Notes', 2000);
+                }
+            } catch (error) {
+                console.error('Error saving notes:', error);
+                showNotification('Failed to save notes', 'error');
+            }
+        }
+
+        async function startPath(level) {
+            try {
+                const response = await fetch('/api/start_learning_path', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ level })
+                });
+
+                if (!response.ok) throw new Error('Failed to start learning path');
+
+                const result = await response.json();
+                if (result.path_id) {
+                    window.location.href = `/roadmap/${result.path_id}`;
+                    showNotification('Learning path started! +50 XP');
+                }
+            } catch (error) {
+                console.error('Error starting learning path:', error);
+                showNotification('Failed to start learning path', 'error');
+            }
+        }
+
+        function initializeWallet() {
+            const connectWalletBtn = document.getElementById('connectWalletBtn');
+            const walletSelect = document.getElementById('walletSelect');
+            const walletAddress = document.getElementById('walletAddress');
+
+            if (connectWalletBtn && walletSelect && walletAddress) {
+                connectWalletBtn.addEventListener('click', async () => {
+                    const selectedWallet = walletSelect.value;
+                    if (!selectedWallet) {
+                        showNotification('Please select a wallet', 'error');
+                        return;
+                    }
+
+                    try {
+                        if (selectedWallet === 'metamask' && typeof window.ethereum !== 'undefined') {
+                            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                            const address = accounts[0];
+                            walletAddress.textContent = `${address.slice(0, 6)}...${address.slice(-4)}`;
+                            connectWalletBtn.textContent = 'Connected';
+                            connectWalletBtn.disabled = true;
+                            await updateWalletConnection(address);
+                        } else {
+                            showNotification('Please install the selected wallet', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error connecting wallet:', error);
+                        showNotification('Failed to connect wallet', 'error');
+                    }
+                });
+            }
+        }
+
+        async function updateWalletConnection(address) {
+            try {
+                const response = await fetch('/api/update_wallet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ wallet_address: address })
+                });
+                if (!response.ok) throw new Error('Failed to update wallet connection');
+            } catch (error) {
+                console.error('Error updating wallet connection:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            startTimer();
+
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+
+            const pathButtons = document.querySelectorAll('.path-card button');
+            if (pathButtons) {
+                pathButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const pathCard = e.target.closest('.path-card');
+                        if (pathCard) {
+                            const level = pathCard.dataset.level;
+                            startPath(level);
+                        }
+                    });
+                });
+            }
+
+            initializeWallet();
+            setupNotesAutosave();
+            initializeProgressTracking();
+        });
+
+        // Learning Path Functions
+
+        // Progress Tracking
+        function initializeProgressTracking() {
+            // Update time spent
+            //setInterval(updateTimeSpent, 60000); // Update every minute
+
+            // Initialize progress bars
+            const progressBars = document.querySelectorAll('.progress-fill');
+            if (progressBars) {
+                progressBars.forEach(bar => {
+                    const percent = bar.getAttribute('data-progress');
+                    if (percent) {
+                        bar.style.width = `${percent}%`;
+                    }
+                });
+            }
+        }
+
+
+        // Wallet Connection Update
+        async function updateTopicProgress(topicId, completed) {
+            try {
+                const response = await fetch('/update_topic_progress', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        topic_id: topicId,
+                        completed: completed
+                    })
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    // Update XP points display
+                    const xpDisplay = document.querySelector('.stat-info p');
+                    if (xpDisplay && data.xp_points) {
+                        xpDisplay.textContent = data.xp_points;
+                    }
+                    // Show completion notification
+                    if (completed) {
+                        showNotification('Topic completed! +100 XP', 'success');
+                    }
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error updating progress:', error);
+                showNotification('Error updating progress', 'error');
+            }
+            return false;
+        }
+
+        // Load wishlist
+        async function loadWishlist() {
+            const statusMessage = document.getElementById("statusMessageCareer");
+            statusMessage.innerText = "⏳ Loading wishlist...";
+            try {
+                const response = await fetch(`${API_URL}/wishlist?user_id=${userId}`, {
+                    method: "GET",
+                    credentials: "include"
+                });
+
+                console.log("Wishlist response status:", response.status);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Failed to load wishlist");
+                }
+
+                const wishlist = await response.json();
+                const wishlistDiv = document.getElementById("wishlist");
+                wishlistDiv.innerHTML = wishlist.map(item => `<p>${item.name}</p>`).join("");
+                statusMessage.innerText = "✅ Wishlist loaded!";
+            } catch (error) {
+                console.error("Error loading wishlist:", error);
+                statusMessage.innerText = `❌ Error: ${error.message}`;
+            }
+        }
+
+        loadWishlist();
+    </script>
+</body>
+</html>

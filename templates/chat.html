@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat | Infinity Academy</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Updated styles as above */
+        body { background: #1a1a2e; color: #e0e0ff; font-family: 'Orbitron', sans-serif; margin: 0; }
+        .container { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 250px;
+            background: #0f0f1f;
+            padding: 20px;
+            border-right: 1px solid #00ffff;
+        }
+        .sidebar a { color: #e0e0ff; padding: 10px; display: block; text-decoration: none; border-radius: 5px; margin-bottom: 10px; }
+        .sidebar a.active { background: #00ffff; color: #0f0f1f; }
+        .content { flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; padding-bottom: 80px; }
+        .chat-history {
+            width: 250px;
+            padding: 20px;
+            background: #0f0f1f;
+            border-left: 1px solid #00ffff;
+            overflow-y: auto;
+        }
+        .chat-history h3 { margin-bottom: 15px; }
+        .chat-cluster { padding: 10px; background: #343a40; margin-bottom: 10px; border-radius: 5px; cursor: pointer; }
+        .chat-cluster:hover { background: #00ffff; color: #0f0f1f; }
+        .chat-cluster.active { background: #00ffff; color: #0f0f1f; }
+        .chat-area { background: #343a40; padding: 20px; border: 1px solid #00ffff; border-radius: 10px; overflow-y: auto; margin-bottom: 20px; width: 600px; max-width: 600px; flex: 1; }
+        .chat-message { margin-bottom: 15px; }
+        .chat-message.user { text-align: right; }
+        .chat-message.ai { text-align: left; }
+        .chat-message p { display: inline-block; padding: 10px; border-radius: 10px; max-width: 70%; word-wrap: break-word; }
+        .chat-message.user p { background: #00ffff; color: #0f0f1f; }
+        .chat-message.ai p { padding: 0; max-width: 100%; border-radius: 0; }
+        .btn-neon { background: linear-gradient(45deg, #00ffff, #007bff); color: #0f0f1f; border: none; padding: 10px 20px; font-weight: bold; box-shadow: 0 0 10px rgba(0, 255, 255, 0.7); }
+        .btn-neon:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 255, 255, 0.9); }
+        .loading { color: #00ffff; font-style: italic; animation: pulse 1s infinite; }
+        .typewriter { overflow: hidden; white-space: nowrap; animation: typing 2s steps(40, end); }
+        @keyframes typing { from { width: 0; } to { width: 100%; } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .input-group { 
+            position: fixed; 
+            bottom: 0; 
+            left: 200px; 
+            width: calc(90% - 230px); 
+            display: flex; 
+            padding: 10px; 
+            background: #1a1a2e; 
+            border-top: 1px solid #00ffff; 
+            z-index: 1000; 
+            justify-content: center; 
+        }
+        .input-group input[type="text"] { 
+            flex-grow: 1; 
+            max-width: 560px; 
+            margin-right: 10px; 
+            background: #343a40; 
+            color: #e0e0ff; 
+            border: 1px solid #00ffff; 
+            border-radius: 5px; 
+            padding: 10px; 
+        }
+        .input-group .btn-neon { 
+            margin-left: 10px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">
+                <h3>Infinity Academy</h3>
+            </div>
+            <a href="/chat" data-section="chat" class="active">AI Chat</a>
+            <a href="/dashboard" data-section="student">
+                <i class='bx bxs-dashboard'></i> Dashboard
+            </a>
+            <a href="/learning" data-section="learning">
+                <i class='bx bx-book-open'></i> My Learning
+            </a>
+            <a href="/exam" data-section="exams">Exams</a>
+            <a href="#" data-section="test-record">Test Record</a>
+            <a href="#" data-section="settings">Settings</a>
+            <a href="#" data-section="support">Support</a>
+            <a href="#" data-section="community">Community</a>
+            <a href="/logout">Log out</a>
+            <button class="btn-neon mt-3">Upgrade</button>
+        </nav>
+
+        
+        <div class="content">
+            <div class="chat-area" id="chatArea"></div>
+            <div class="input-group">
+                <input type="text" id="chatInput" class="form-control" placeholder="Type your message...">
+                <button class="btn-neon" onclick="sendMessage()">Send</button>
+                <button class="btn-neon" onclick="startNewChat()">New Chat</button>
+            </div>
+        </div>
+
+        <div class="chat-history">
+            <h3>Chat History</h3>
+            <div id="chatHistory"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Unchanged script from previous version
+        const hostname = window.location.hostname;
+        const API_URL = (hostname === "localhost" || hostname.startsWith("127.0.0.1")) ? "http://127.0.0.1:8000" : "https://inextai.vercel.app";
+        console.log("API_URL:", API_URL);
+
+        let userId = null;
+        let ws = null;
+        let currentSessionId = null;
+        let username = null;
+
+        async function fetchUserDetails() {
+            try {
+                const response = await fetch(`${API_URL}/me`, { method: "GET", credentials: "include" });
+                if (!response.ok) throw new Error(response.status === 401 ? "Unauthorized: Please log in." : `Failed to fetch user details: ${response.status}`);
+                const data = await response.json();
+                userId = data.user_id;
+                username = data.username;
+                console.log("Fetched user_id:", userId, "username:", username);
+                return true;
+            } catch (error) {
+                console.error("Error fetching user details:", error);
+                document.getElementById("chatArea").innerHTML = `<p style='color: red;'>${error.message} <a href='/'>Login here</a></p>`;
+                return false;
+            }
+        }
+
+        async function getNewSessionId() {
+            try {
+                const response = await fetch(`${API_URL}/chat/new_session`, { method: "GET", credentials: "include" });
+                if (!response.ok) throw new Error(`Failed to create new session: ${response.status}`);
+                const data = await response.json();
+                return data.session_id;
+            } catch (error) {
+                console.error("Error creating new session:", error);
+                return null;
+            }
+        }
+
+        async function connectWebSocket(sessionId) {
+            if (!userId || !username) {
+                console.error("No user ID or username available.");
+                return;
+            }
+
+            if (!sessionId) {
+                sessionId = await getNewSessionId();
+                if (!sessionId) return;
+                currentSessionId = sessionId;
+                localStorage.setItem("chat_session_id", currentSessionId);
+                console.log("Assigned new sessionId:", currentSessionId);
+            }
+
+            if (ws && ws.readyState !== WebSocket.CLOSED) ws.close();
+
+            const wsUrl = `${API_URL.replace("http", "ws")}/ws/chat/${userId}/${sessionId}`;
+            console.log("Connecting to:", wsUrl);
+            ws = new WebSocket(wsUrl, [], { headers: { "Cookie": document.cookie } });
+
+            const displayedMessages = new Set();
+
+            ws.onopen = () => console.log("WebSocket connected successfully.");
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log("Received message:", data);
+
+                if (data.error) {
+                    console.error(`Server error: ${data.error}`);
+                    document.getElementById("chatArea").innerHTML += `<p style='color: red;'>Error: ${data.error}</p>`;
+                    if (data.error.includes("Unauthorized")) document.getElementById("chatArea").innerHTML += `<p><a href='/'>Login here</a></p>`;
+                    return;
+                }
+
+                if (data.session_id) {
+                    currentSessionId = data.session_id;
+                    localStorage.setItem("chat_session_id", currentSessionId);
+                    console.log("Updated currentSessionId:", currentSessionId);
+                    setActiveChat(currentSessionId);
+                    if (data.title) addChatCluster(currentSessionId, data.title);
+                }
+
+                if (data.chat_history) {
+                    const key = `${data.chat_history.message}-${data.chat_history.response}`;
+                    if (!displayedMessages.has(key)) {
+                        addMessageToChat(data.chat_history.message, "user");
+                        addMessageToChat(data.chat_history.response, "ai");
+                        displayedMessages.add(key);
+                    }
+                }
+
+                if (data.message) {
+                    const thinkingMessage = document.querySelector(".chat-message.ai:last-child p.loading");
+                    if (thinkingMessage) thinkingMessage.parentElement.remove();
+                    const key = `${data.message}`;
+                    if (!displayedMessages.has(key)) {
+                        animateMessage(data.message, "ai");
+                        displayedMessages.add(key);
+                    }
+                }
+            };
+
+            ws.onerror = (error) => console.error("WebSocket error:", error);
+            ws.onclose = (event) => {
+                console.log(`WebSocket closed with code: ${event.code}, reason: ${event.reason || 'No reason provided'}`);
+                setTimeout(() => connectWebSocket(currentSessionId), 3000);
+            };
+        }
+
+        async function loadChatHistory() {
+            try {
+                const response = await fetch(`${API_URL}/chat_history`, { method: "GET", credentials: "include" });
+                if (!response.ok) throw new Error(`Failed to load chat history: ${response.status}`);
+                const data = await response.json();
+                const sessions = data.chat_sessions || [];
+                console.log("Chat sessions:", sessions);
+
+                const chatHistoryDiv = document.getElementById("chatHistory");
+                chatHistoryDiv.innerHTML = "";
+
+                sessions.forEach(session => addChatCluster(session.session_id, session.title));
+
+                const lastSessionId = localStorage.getItem("chat_session_id");
+                if (sessions.length > 0) {
+                    const latestSessionId = sessions[0].session_id;
+                    if (lastSessionId && sessions.some(s => s.session_id == lastSessionId)) {
+                        console.log("Restoring last session from localStorage:", lastSessionId);
+                        loadChat(lastSessionId);
+                    } else {
+                        console.log("Loading most recent session:", latestSessionId);
+                        loadChat(latestSessionId);
+                    }
+                } else {
+                    console.log("No sessions, starting new chat.");
+                    startNewChat();
+                }
+            } catch (error) {
+                console.error("Error loading chat history:", error);
+                startNewChat();
+            }
+        }
+
+        function startNewChat() {
+            currentSessionId = null;
+            localStorage.setItem("chat_session_id", null);
+            document.getElementById("chatArea").innerHTML = "";
+            connectWebSocket(null);
+        }
+
+        async function loadChat(sessionId) {
+            currentSessionId = sessionId;
+            localStorage.setItem("chat_session_id", sessionId);
+            document.getElementById("chatArea").innerHTML = "";
+
+            const response = await fetch(`${API_URL}/chat_history`, { method: "GET", credentials: "include" });
+            if (response.ok) {
+                const data = await response.json();
+                const session = data.chat_sessions.find(s => s.session_id == sessionId);
+                if (session) {
+                    session.messages.forEach(msg => {
+                        addMessageToChat(msg.message, "user");
+                        addMessageToChat(msg.response, "ai");
+                    });
+                }
+            }
+
+            connectWebSocket(sessionId);
+            setActiveChat(sessionId);
+        }
+
+        function addChatCluster(sessionId, title) {
+            const chatHistoryDiv = document.getElementById("chatHistory");
+            const existingCluster = document.querySelector(`.chat-cluster[data-session-id="${sessionId}"]`);
+            if (!existingCluster) {
+                const newCluster = document.createElement("div");
+                newCluster.classList.add("chat-cluster");
+                newCluster.setAttribute("data-session-id", sessionId);
+                newCluster.innerText = title || `Chat #${sessionId}`;
+                newCluster.onclick = () => loadChat(sessionId);
+                chatHistoryDiv.insertBefore(newCluster, chatHistoryDiv.firstChild);
+            }
+        }
+
+        function setActiveChat(sessionId) {
+            document.querySelectorAll(".chat-cluster").forEach(cluster => cluster.classList.remove("active"));
+            const activeCluster = document.querySelector(`.chat-cluster[data-session-id="${sessionId}"]`);
+            if (activeCluster) activeCluster.classList.add("active");
+        }
+
+        function addMessageToChat(message, sender) {
+            const chatArea = document.getElementById("chatArea");
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("chat-message", sender);
+            if (sender === "ai" && message === "Thinking...") messageDiv.innerHTML = `<p class="loading">${message}</p>`;
+            else messageDiv.innerHTML = `<p>${message}</p>`;
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function animateMessage(message, sender) {
+            const chatArea = document.getElementById("chatArea");
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("chat-message", sender);
+            const messageP = document.createElement("p");
+            messageDiv.appendChild(messageP);
+            chatArea.appendChild(messageDiv);
+
+            let i = 0;
+            const speed = 40;
+            messageP.classList.add("typewriter");
+
+            function typeWriter() {
+                if (i < message.length) {
+                    messageP.innerHTML = message.substring(0, i + 1);
+                    i++;
+                    setTimeout(typeWriter, speed);
+                } else {
+                    messageP.classList.remove("typewriter");
+                }
+            }
+            typeWriter();
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById("chatInput");
+            const message = input.value.trim();
+            if (!message) return;
+
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                console.error("WebSocket not connected. Attempting to reconnect...");
+                await connectWebSocket(currentSessionId);
+                setTimeout(() => sendMessage(), 500);
+                return;
+            }
+
+            addMessageToChat(message, "user");
+            input.value = "";
+            addMessageToChat("Thinking...", "ai");
+            ws.send(message);
+        }
+
+        document.getElementById("chatInput").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+        });
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const userFetched = await fetchUserDetails();
+            if (userFetched) await loadChatHistory();
+        });
+
+        document.querySelector('a[href="/logout"]').addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.removeItem("chat_session_id");
+            fetch(`${API_URL}/logout`, { method: "GET", credentials: "include" })
+                .then(() => window.location.href = "/")
+                .catch(err => console.error("Logout failed:", err));
+        });
+    </script>
+</body>
+</html>

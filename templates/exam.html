@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exams | Infinity Academy</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #1a1a2e;
+            color: #e0e0ff;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 200px;
+            background: #0f0f1f;
+            padding: 20px;
+            border-right: 1px solid #00ffff;
+        }
+        .sidebar a {
+            color: #e0e0ff;
+            padding: 10px;
+            display: block;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .sidebar a.active {
+            background: #00ffff;
+            color: #0f0f1f;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+        .profile {
+            width: 200px;
+            padding: 20px;
+            background: #0f0f1f;
+            border-left: 1px solid #00ffff;
+        }
+        .neon-text {
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+        }
+        .btn-neon {
+            background: linear-gradient(45deg, #00ffff, #007bff);
+            color: #0f0f1f;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        .btn-neon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.9);
+        }
+        .learning-path {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .progress-bar {
+            background-color: #1a1a2e;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            height: 15px;
+            width: 350px;
+            margin: 0 10px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #343a40;
+            padding: 20px;
+            border: 1px solid #00ffff;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+        }
+        .exam-status-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .completed-stamp {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, rgba(0, 255, 204, 0.8), rgba(0, 204, 153, 0.5));
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: rotate(15deg);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.7);
+            animation: pulse 1.5s infinite;
+        }
+        .stamp-text {
+            color: #1a1a2e;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transform: rotate(-15deg);
+        }
+        @keyframes pulse {
+            0% { transform: scale(1) rotate(15deg); }
+            50% { transform: scale(1.05) rotate(15deg); }
+            100% { transform: scale(1) rotate(15deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar (unchanged) -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h3>Infinity Academy</h3>
+            </div>
+            <a href="/chat" data-section="chat">AI Chat</a>
+            <a href="/dashboard" data-section="student">
+                <i class='bx bxs-dashboard'></i> Dashboard
+            </a>
+            <a href="/learning" data-section="exams">
+                <i class='bx bx-book-open'></i> My Learning
+            </a>
+            <a href="/exam" data-section="exams" class="active">Exams</a>
+            <a href="#" data-section="test-record">Test Record</a>
+            <a href="#" data-section="settings">Settings</a>
+            <a href="#" data-section="support">Support</a>
+            <a href="#" data-section="community">Community</a>
+            <a href="/logout">Log out</a>
+            <button class="btn-neon mt-3">Upgrade</button>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="content">
+            <h1 class="neon-text">Your Exams</h1>
+            <p>Take an exam to test your knowledge on completed learning paths.</p>
+
+            <!-- Saved Learning Paths with Exam Option -->
+            <div id="learning-paths-container" class="mt-4">
+                <h2>Your Learning Paths</h2>
+                {% if learning_paths %}
+                <div id="savedPaths">
+                    {% for lp in learning_paths %}
+                    <div class="learning-path">
+                        <span>{{ lp.name }}</span>
+                        <div class="exam-status-container">
+                            {% if lp.exam_completed %}
+                            <div class="completed-stamp">
+                                <span class="stamp-text">COMPLETED</span>
+                            </div>
+                            {% endif %}
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ lp.progress_percentage }}%"></div>
+                            </div>
+                            <div><small>{{ lp.completed_topics }}/{{ lp.total_topics }} topics completed</small></div>
+                            <button class="btn btn-neon m-2" onclick="showExamConfirm({{ lp.id }}, '{{ lp.name }}')" {% if lp.progress_percentage < 100 %}disabled{% endif %}>Take Exam</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p>You have no saved learning paths. Create one in the dashboard!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="profile">
+            <div style="display: flex; justify-content: space-between;">
+                <h3>Profile</h3>
+                <button id="themeToggle" class="btn btn-sm">
+                    <i  class='bx bx-moon'></i> <p style="color: white;">Theme</p>
+                </button>
+            </div>
+            <hr style="border-color: var(--neon-pink);"/>
+            <div class="profile-info">
+                <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ user.username }}" alt="Profile" class="avatar">
+                <h3>{{ user.username }}</h3>
+                <span class="level">Level {{ user.level|default(1) }}</span>
+            </div>
+            <div id="wishlist"></div>
+            <!-- Leaderboard -->
+            <div class="section leaderboard">
+                <h2>Top Learners</h2>
+                <div class="leaderboard-list">
+                    {% for learner in top_learners %}
+                    <div class="leaderboard-item">
+                        <span class="rank">{{ loop.index }}</span>
+                        <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ learner.username }}" alt="User" class="avatar">
+                        <span class="username">{{ learner.username }}</span>
+                        <span class="points">{{ learner.xp_points }} XP</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam Confirmation Modal (unchanged) -->
+    <div id="examModal" class="modal">
+        <div class="modal-content">
+            <h3>Start Exam</h3>
+            <p>Are you ready to take the exam for "<span id="examPathName"></span>"?</p>
+            <p>This exam contains 30-50 questions and will test your knowledge across all topics.</p>
+            <button class="btn-neon" onclick="startExam()">Yes, Start Now</button>
+            <button class="btn-neon" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        console.log("Hostname:", window.location.hostname);
+        const hostname = window.location.hostname;
+        const API_URL = (hostname.startsWith("localhost") || hostname.startsWith("127.0.0.1")) ? "http://127.0.0.1:8000" : "https://inextai.vercel.app";
+        console.log("API_URL:", API_URL);
+        
+        const userId = "{{ user.id }}";
+        let selectedLearningPathId = null;
+
+        // Show exam confirmation modal
+        function showExamConfirm(learningPathId, pathName) {
+            selectedLearningPathId = learningPathId;
+            document.getElementById("examPathName").innerText = pathName;
+            document.getElementById("examModal").style.display = "flex";
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById("examModal").style.display = "none";
+            selectedLearningPathId = null;
+        }
+
+        // Start exam and redirect to quiz.html
+        function startExam() {
+            if (selectedLearningPathId) {
+                window.location.href = `/quiz?learning_path_id=${selectedLearningPathId}`;
+            }
+            closeModal();
+        }
+
+        // Load wishlist
+        async function loadWishlist() {
+            try {
+                const response = await fetch(`${API_URL}/wishlist?user_id=${userId}`, {
+                    method: "GET",
+                    credentials: "include"
+                });
+                if (!response.ok) throw new Error("Failed to load wishlist");
+                const wishlist = await response.json();
+                document.getElementById("wishlist").innerHTML = wishlist.map(item => `<p>${item.name}</p>`).join("");
+            } catch (error) {
+                console.error("Error loading wishlist:", error);
+            }
+        }
+
+        loadWishlist();
+    </script>
+</body>
+</html>

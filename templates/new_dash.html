@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat | Web3 AI Tutor</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Same styles as dashboard.html */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar: Wallet and Chat History -->
+        <div class="sidebar">
+            <h4 class="neon-text">Web3 AI Tutor</h4>
+            <p id="walletStatus">Wallet: <span id="walletAddress">Not Connected</span></p>
+            <button id="connectWalletBtn" class="btn-neon w-100 mb-3">Connect Wallet</button>
+            <h5 class="neon-text mt-3">Chat History</h5>
+            <div id="chatHistory" style="overflow-y: auto; max-height: 60%;">
+                {% if wallet_connected and chat_history %}
+                    {% for entry in chat_history %}
+                        <p>{{ entry.timestamp }} - {{ entry.message }}</p>
+                    {% endfor %}
+                {% else %}
+                    <p>No history (connect wallet to save).</p>
+                {% endif %}
+            </div>
+            <a href="/dashboard" class="btn-neon w-100 mt-3">Dashboard</a>
+            <a href="/logout" class="btn-neon w-100 mt-3">Logout</a>
+        </div>
+
+        <!-- Main Content: AI Chat -->
+        <div class="main-content">
+            <h2 class="neon-text">AI Chat</h2>
+            <div id="chatLog" style="height: 70%; overflow-y: auto; background: #1a1a2e; padding: 10px; border-radius: 5px;"></div>
+            <div class="mt-3">
+                {% if wallet_connected %}
+                    <textarea id="chatInput" class="form-control" placeholder="Ask the AI..." rows="3"></textarea>
+                    <button id="sendBtn" class="btn-neon w-100 mt-2">Send</button>
+                {% else %}
+                    <div class="wallet-prompt">
+                        <p>Connect wallet to save chat history, or test without saving.</p>
+                        <button id="promptConnectBtn" class="btn-neon">Connect Wallet</button>
+                        <button id="testChatBtn" class="btn-neon mt-2">Test Without Saving</button>
+                    </div>
+                {% endif %}
+            </div>
+            <p id="statusMessage" class="mt-3"></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js"></script>
+    <script>
+        const API_URL = "http://localhost:8000";
+        let provider, signer, walletAddress;
+
+        // Wallet Connection
+        async function connectWallet() {
+            if (!window.ethereum && !window.bybit) {
+                alert("Please install MetaMask or Bybit Wallet!");
+                return;
+            }
+            try {
+                provider = window.ethereum ? new ethers.providers.Web3Provider(window.ethereum) : 
+                          window.bybit ? new ethers.providers.Web3Provider(window.bybit) : null;
+                await provider.send("eth_requestAccounts", []);
+                signer = provider.getSigner();
+                walletAddress = await signer.getAddress();
+                document.getElementById("walletAddress").innerText = walletAddress.slice(0, 6) + "...";
+                await fetch(`${API_URL}/connect_wallet`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ wallet: walletAddress }),
+                    credentials: "include"
+                });
+                window.location.reload();
+            } catch (error) {
+                console.error("Wallet connection failed:", error);
+                document.getElementById("statusMessage").innerText = "Wallet connection failed.";
+            }
+        }
+
+        // Send Chat Message
+        async function sendMessage(saveHistory = true) {
+            const message = document.getElementById("chatInput")?.value;
+            if (!message && saveHistory) return;
+            const chatLog = document.getElementById("chatLog");
+            chatLog.innerHTML += `<p><strong>You:</strong> ${message || "Test message"}</p>`;
+
+            try {
+                const response = await fetch(`${API_URL}/chat`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: message || "Hello AI", save_history: saveHistory }),
+                    credentials: "include"
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    chatLog.innerHTML += `<p><strong>AI:</strong> ${result.response}</p>`;
+                    chatLog.scrollTop = chatLog.scrollHeight;
+                    if (saveHistory) document.getElementById("chatInput").value = "";
+                } else {
+                    document.getElementById("statusMessage").innerText = `Error: ${result.error}`;
+                }
+            } catch (error) {
+                document.getElementById("statusMessage").innerText = `Error: ${error.message}`;
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
+            document.getElementById("promptConnectBtn")?.addEventListener("click", connectWallet);
+            document.getElementById("sendBtn")?.addEventListener("click", () => sendMessage(true));
+            document.getElementById("testChatBtn")?.addEventListener("click", () => sendMessage(false));
+        });
+    </script>
+</body>
+</html>

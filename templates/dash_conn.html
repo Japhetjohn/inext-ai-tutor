@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Infinity Academy</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #1a1a2e;
+            color: #e0e0ff;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 200px;
+            background: #0f0f1f;
+            padding: 20px;
+            border-right: 1px solid #00ffff;
+        }
+        .sidebar a {
+            color: #e0e0ff;
+            padding: 10px;
+            display: block;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .sidebar a.active {
+            background: #00ffff;
+            color: #0f0f1f;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+        .profile {
+            width: 200px;
+            padding: 20px;
+            background: #0f0f1f;
+            border-left: 1px solid #00ffff;
+        }
+        .neon-text {
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+        }
+        .btn-neon {
+            background: linear-gradient(45deg, #00ffff, #007bff);
+            color: #0f0f1f;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        .btn-neon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.9);
+        }
+        #intro-text {
+            color: goldenrod;
+            font-size: larger;
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
+        }
+        #intro-text.fade {
+            opacity: 0;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 20px;
+            background: #343a40;
+            border-radius: 10px;
+            border: 1px solid #00ffff;
+        }
+        .step input[type="text"], .step input[type="radio"] {
+            margin: 10px 0;
+        }
+        .step label {
+            margin-right: 20px;
+        }
+        .learning-path {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .progress-bar {
+            background-color: #1a1a2e;
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            height: 15px;
+            width: 100px;
+            margin: 0 10px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h3>Infinity Academy</h3>
+            </div>
+            <p>Wallet: <span id="walletAddress">Not Connected</span></p>
+            <select id="walletSelect" class="form-control mb-3">
+                <option value="" selected>Select Wallet</option>
+                <option value="metamask">MetaMask</option>
+                <option value="bybit">Bybit Wallet</option>
+                <option value="coinbase">Coinbase Wallet</option>
+                <option value="walletconnect">WalletConnect</option>
+            </select>
+            <button id="connectWalletBtn" class="btn-neon w-100 mb-3">Connect</button>
+            <a href="/chat" data-section="chat">AI Chat</a>
+            <a href="/dashboard" data-section="student" class="active">Student</a>
+            <a href="#" data-section="exams">Exams</a>
+            <a href="#" data-section="test-record">Test Record</a>
+            <a href="#" data-section="settings">Settings</a>
+            <a href="#" data-section="support">Support</a>
+            <a href="#" data-section="community">Community</a>
+            <a href="/logout">Log out</a>
+            <button class="btn-neon mt-3">Upgrade</button>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div id="student-section" class="section active">
+                <h1 class="neon-text">Personalize Your Learning Experience</h1>
+                <p>Let’s help you curate courses in line with your previous knowledge.</p>
+
+                <!-- Step 1: Path Subject and Knowledge Level -->
+                <div id="step-1" class="step active">
+                    <input type="text" id="pathSubject" class="form-control" placeholder="Input skill e.g. designer, frontend dev, backend dev">
+                    <div>
+                        <label><input type="radio" name="knowledgeLevel" value="beginner" checked> Beginner</label>
+                        <label><input type="radio" name="knowledgeLevel" value="intermediate"> Intermediate</label>
+                        <label><input type="radio" name="knowledgeLevel" value="expert"> Expert</label>
+                    </div>
+                    <button class="btn-neon" onclick="showStep(2)">Submit</button>
+                </div>
+
+                <!-- Step 2: Weekly Hours -->
+                <div id="step-2" class="step" style="display: none;">
+                    <p>How many hours can you dedicate weekly?</p>
+                    <label><input type="radio" name="hours" value="1-3" checked> 1-3</label>
+                    <label><input type="radio" name="hours" value="4-8"> 3-5</label>
+                    <label><input type="radio" name="hours" value="9-5"> 5-8</label>
+                    <label><input type="radio" name="hours" value="manual"> Input Manually</label>
+                    <input type="text" id="manualHours" class="form-control" placeholder="Enter range of hours" style="display: none;">
+                    <button class="btn-neon" onclick="showStep(3)">Next</button>
+                </div>
+
+                <!-- Step 3: Learning Style -->
+                <div id="step-3" class="step" style="display: none;">
+                    <p>Preferred learning style?</p>
+                    <label><input type="radio" name="learningStyle" value="video" checked> Video</label>
+                    <label><input type="radio" name="learningStyle" value="articles"> Articles</label>
+                    <label><input type="radio" name="learningStyle" value="interactive_labs"> Interactive Labs</label>
+                    <button class="btn-neon" id="generateLearningPathBtn">Generate My Learning Path</button>
+                    <p id="statusMessage"></p>
+                </div>
+            </div>
+
+            <!-- Web3 & Blockchain Introduction -->
+            <div id="intro-section" class="mt-4">
+                <h2>What is Web3 & Blockchain?</h2>
+                <p id="intro-text">Loading...</p>
+            </div>
+
+            <!-- Career Paths Dropdown -->
+            <div id="career-paths-section" class="mt-4">
+                <h2>Select a Web3 Career Path</h2>
+                <select class="career-select" id="careerSelect" onchange="redirectToRoadmap()">
+                    <option value="" disabled selected>Choose a Career Path</option>
+                    {% for career in career_paths %}
+                    <option value="{{ career.id }}">{{ career.name }}</option>
+                    {% endfor %}
+                </select>
+                <p id="statusMessageCareer"></p>
+            </div>
+
+            <!-- Saved Learning Paths -->
+            <div id="learning-paths-container" class="mt-4">
+                <h2>Your Saved Learning Paths</h2>
+                {% if learning_paths %}
+                <div id="savedPaths">
+                    {% for lp in learning_paths %}
+                    <div class="learning-path">
+                        <span>{{ lp.name }} </span> 
+                        <!-- (Created: {{ lp.created_at }}) -->
+                        <div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ lp.progress_percentage }}%"></div>
+                            </div>
+                            <div><small>{{ lp.completed_topics }}/{{ lp.total_topics }} topics completed</small></div>
+                            <a href="/roadmap/{{ lp.id }}" class="btn btn-neon m-2">View Roadmap</a>
+                            <button class="btn btn-sm btn-danger m-2" onclick="deleteRoadmap({{ lp.id }})">Delete Roadmap</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+
+
+                <p>You have no saved learning paths. Create one above!</p>
+                {% endif %}
+            </div>
+
+            <!-- Saved Learning Paths (Visible only if wallet connected) -->
+            {% if wallet_connected %}
+            <div class="mt-4">
+                <h2 class="neon-text">Your Learning Paths</h2>
+                {% if learning_paths %}
+                    {% for lp in learning_paths %}
+                        <div class="learning-path">
+                            <span>{{ lp.name }}</span>
+                            <div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {{ lp.progress_percentage }}%"></div>
+                                </div>
+                                <a href="/roadmap/{{ lp.id }}" class="btn btn-neon m-2">View Roadmap</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No learning paths yet. Generate one above!</p>
+                {% endif %}
+            </div>
+            {% endif %}
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="profile">
+            <h3>Profile</h3>
+            <p>{{ user.username }}<br>Level 3</p>
+            <div id="wishlist">
+                <!-- Wishlist items will be populated here -->
+            </div>
+        </div>
+    </div>
+    <!-- Wallet Connection Modal -->
+    <div class="modal fade" id="walletModal" tabindex="-1" aria-labelledby="walletModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title neon-text" id="walletModalLabel">Connect Your Wallet</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Connect a wallet to save your learning path and earn rewards.</p>
+                    <select id="modalWalletSelect" class="form-control mb-3">
+                        <option value="" selected>Select Wallet</option>
+                        <option value="metamask">MetaMask</option>
+                        <option value="bybit">Bybit Wallet</option>
+                        <option value="coinbase">Coinbase Wallet</option>
+                        <option value="walletconnect">WalletConnect</option>
+                    </select>
+                    <button id="modalConnectBtn" class="btn-neon w-100">Connect</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_URL = "http://127.0.0.1:8000";
+        const userId = "{{ user.id }}";
+
+        // Update wallet status on load
+        if (walletAddress) {
+            document.getElementById("walletAddress").innerText = walletAddress.slice(0, 6) + "...";
+            document.getElementById("userInfo").innerText = walletAddress.slice(0, 10) + "...";
+        }
+
+        // Wallet Connection Logic
+        async function connectWallet(walletType) {
+            if (!walletType) {
+                alert("Please select a wallet!");
+                return;
+            }
+
+            try {
+                if (walletType === "metamask" && window.ethereum) {
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                } else if (walletType === "bybit" && window.bybit) {
+                    provider = new ethers.providers.Web3Provider(window.bybit);
+                } else if (walletType === "coinbase" && window.ethereum) {
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                } else if (walletType === "walletconnect") {
+                    alert("WalletConnect requires additional setup. Coming soon!");
+                    return;
+                } else {
+                    alert(`Please install ${walletType.charAt(0).toUpperCase() + walletType.slice(1)} Wallet!`);
+                    return;
+                }
+
+                await provider.send("eth_requestAccounts", []);
+                signer = provider.getSigner();
+                walletAddress = await signer.getAddress();
+                document.getElementById("walletAddress").innerText = walletAddress.slice(0, 6) + "...";
+                document.getElementById("userInfo").innerText = walletAddress.slice(0, 10) + "...";
+
+                const response = await fetch(`${API_URL}/connect_wallet`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ wallet_address: walletAddress }),
+                    credentials: "include"
+                });
+                if (!response.ok) throw new Error("Wallet connection failed");
+                const userData = await response.json();
+                document.getElementById("tokenBalance").innerText = userData.tokens;
+                walletModal.hide();
+                window.location.reload(); // Refresh to show connected state
+            } catch (error) {
+                console.error("Wallet connection failed:", error);
+                document.getElementById("statusMessage").innerText = `❌ Error: ${error.message}`;
+            }
+        }
+
+        // Show/hide steps
+        function showStep(step) {
+            document.querySelectorAll(".step").forEach(s => s.style.display = "none");
+            document.getElementById(`step-${step}`).style.display = "block";
+
+            if (step === 2) {
+                document.querySelectorAll("input[name='hours']").forEach(radio => {
+                    radio.addEventListener("change", () => {
+                        document.getElementById("manualHours").style.display = radio.value === "manual" ? "block" : "none";
+                    });
+                });
+            }
+        }
+
+        // Arrays for Web3, Blockchain, and Smart Contract Definitions
+        const definitions = [
+            { topic: "Web3", text: "Web3 is the decentralized internet, powered by blockchain technology.", quote: '"The future of the internet is decentralized, and Web3 is leading the way." - Vitalik Buterin' },
+            { topic: "Web3", text: "Web3 represents the next generation of the internet, focusing on user sovereignty and data ownership.", quote: '"Web3 empowers users to take control of their digital lives." - Gavin Wood' },
+            { topic: "Web3", text: "Web3 is a vision of the internet where users interact through peer-to-peer networks without intermediaries.", quote: '"Decentralization through Web3 is the key to a fairer internet." - Anonymous' },
+            { topic: "Blockchain", text: "Blockchain is a secure and transparent digital ledger for recording transactions across a network.", quote: '"Blockchain is the tech. Bitcoin is merely the first mainstream manifestation of its potential." - Marc Kenigsberg' },
+            { topic: "Blockchain", text: "Blockchain ensures immutability and trust in decentralized systems through cryptographic techniques.", quote: '"Blockchain does not guarantee trust; it provides a framework to establish it." - Don Tapscott' },
+            { topic: "Blockchain", text: "Blockchain technology underpins cryptocurrencies like Bitcoin, enabling secure and verifiable transactions.", quote: '"The blockchain is an incorruptible digital ledger of economic transactions." - Anonymous' },
+            { topic: "Smart Contracts", text: "Smart contracts are self-executing contracts with the terms directly written into code on the blockchain.", quote: '"Smart contracts are the building blocks of decentralized applications." - Nick Szabo' },
+            { topic: "Smart Contracts", text: "Smart contracts automate agreements, reducing the need for intermediaries and ensuring transparency.", quote: '"With smart contracts, trust is coded into the system." - Anonymous' },
+            { topic: "Smart Contracts", text: "Smart contracts execute automatically when predefined conditions are met, enhancing efficiency.", quote: '"Smart contracts will revolutionize how we handle agreements in the digital age." - Anonymous' }
+        ];
+
+        let index = 0;
+
+        // Function to update the intro text with a fade effect
+        function updateIntroText() {
+            const introElement = document.getElementById("intro-text");
+            introElement.classList.add("fade");
+            setTimeout(() => {
+                const entry = definitions[index];
+                introElement.innerText = `${entry.text}\n\n${entry.quote}`;
+                introElement.classList.remove("fade");
+                index = (index + 1) % definitions.length;
+            }, 1000);
+        }
+
+        // Set interval to update every 5 seconds
+        setInterval(updateIntroText, 5000);
+        updateIntroText();
+
+        // Generate learning path
+        async function generateLearningPath(event) {
+            event.preventDefault(); // Ensure event is defined
+            console.log("Event received:", event);
+
+            const pathSubject = document.getElementById("pathSubject").value;
+            const knowledgeLevel = document.querySelector('input[name="knowledgeLevel"]:checked').value;
+            let weeklyHours = document.querySelector('input[name="hours"]:checked').value;
+            if (weeklyHours === "manual") {
+                weeklyHours = document.getElementById("manualHours").value || "5"; // Default to 5 if manual input is empty
+            }
+            const learningStyle = document.querySelector('input[name="learningStyle"]:checked').value;
+
+            const data = {
+                path_subject: pathSubject,
+                knowledge_level: knowledgeLevel,
+                weekly_hours: weeklyHours,
+                learning_style: learningStyle
+            };
+
+            console.log("Sending data to /generate_learning_path:", data);
+            try {
+                const response = await fetch(`${API_URL}/generate_learning_path`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data),
+                    credentials: "include"
+                });
+
+                console.log("Response status:", response.status);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Failed to generate learning path");
+                }
+
+                const result = await response.json();
+                console.log("Learning path generated:", result);
+                window.location.href = `/roadmap/${result.learning_path_id}`;
+            } catch (error) {
+                console.error("Fetch error:", error);
+                document.getElementById("statusMessage").innerText = `❌ Error: ${error.message}`;
+            }
+        }
+
+        // Bind to button click
+        document.addEventListener("DOMContentLoaded", () => {
+            const generateBtn = document.getElementById("generateLearningPathBtn");
+            if (generateBtn) {
+                generateBtn.addEventListener("click", generateLearningPath);
+            } else {
+                console.error("Button with id 'generateLearningPathBtn' not found");
+            }
+        });
+
+        // Redirect to roadmap based on selected career path
+        async function redirectToRoadmap() {
+            const careerId = document.getElementById("careerSelect").value;
+            const statusMessage = document.getElementById("statusMessageCareer");
+            if (careerId) {
+                statusMessage.innerText = "⏳ Generating roadmap...";
+                try {
+                    const response = await fetch(`${API_URL}/generate_roadmap/${careerId}/${userId}`, {
+                        method: "GET",
+                        credentials: "include"
+                    });
+
+                    console.log("Response status:", response.status);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || "Failed to generate roadmap");
+                    }
+
+                    // Handle redirect
+                    if (response.redirected) {
+                        console.log("Redirected to:", response.url);
+                        window.location.href = response.url;
+                    } else {
+                        const result = await response.json();
+                        console.log("Roadmap generated:", result);
+                        window.location.href = `/roadmap/${result.learning_path_id}`;
+                    }
+                    statusMessage.innerText = "✅ Roadmap generated!";
+                } catch (error) {
+                    console.error("Error generating roadmap:", error);
+                    statusMessage.innerText = `❌ Error: ${error.message}`;
+                }
+            }
+        }
+
+        // Load wishlist
+        async function loadWishlist() {
+            const statusMessage = document.getElementById("statusMessageCareer");
+            statusMessage.innerText = "⏳ Loading wishlist...";
+            try {
+                const response = await fetch(`${API_URL}/wishlist?user_id=${userId}`, {
+                    method: "GET",
+                    credentials: "include"
+                });
+
+                console.log("Wishlist response status:", response.status);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Failed to load wishlist");
+                }
+
+                const wishlist = await response.json();
+                const wishlistDiv = document.getElementById("wishlist");
+                wishlistDiv.innerHTML = wishlist.map(item => `<p>${item.name}</p>`).join("");
+                statusMessage.innerText = "✅ Wishlist loaded!";
+            } catch (error) {
+                console.error("Error loading wishlist:", error);
+                statusMessage.innerText = `❌ Error: ${error.message}`;
+            }
+        }
+
+        loadWishlist();
+    </script>
+</body>
+</html>
+
+
+

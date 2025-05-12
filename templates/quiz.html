@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if exam_mode %}Exams{% else %}Module Quiz{% endif %} | Infinity Academy</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #1a1a2e;
+            color: #e0e0ff;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 200px;
+            background: #0f0f1f;
+            padding: 20px;
+            border-right: 1px solid #00ffff;
+        }
+        .sidebar a {
+            color: #e0e0ff;
+            padding: 10px;
+            display: block;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .sidebar a.active {
+            background: #00ffff;
+            color: #0f0f1f;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+        .profile {
+            width: 200px;
+            padding: 20px;
+            background: #0f0f1f;
+            border-left: 1px solid #00ffff;
+        }
+        .quiz {
+            background: #343a40;
+            padding: 20px;
+            border: 1px solid #00ffff;
+            border-radius: 10px;
+        }
+        .btn-neon {
+            background: linear-gradient(45deg, #00ffff, #007bff);
+            color: #0f0f1f;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        .btn-neon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.9);
+        }
+        .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    .modal-content {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    .modal-title {
+        color: #00ffcc;
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    .modal-message {
+        color: #ffffff;
+        font-size: 18px;
+        margin: 10px 0;
+    }
+    .modal-badge {
+        width: 100px;
+        height: 100px;
+        margin: 15px auto;
+        display: block;
+    }
+    .modal-button {
+        background: #00ffcc;
+        color: #1a1a2e;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s;
+    }
+    .modal-button:hover {
+        background: #00cc99;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h3>Infinity Academy</h3>
+            </div>
+            <a href="/chat" data-section="chat">AI Chat</a>
+            <a href="/dashboard" data-section="student" class="active">Student</a>
+            <a href="#" data-section="exams">Exams</a>
+            <a href="#" data-section="test-record">Test Record</a>
+            <a href="#" data-section="settings">Settings</a>
+            <a href="#" data-section="support">Support</a>
+            <a href="#" data-section="community">Community</a>
+            <a href="/logout">Log out</a>
+            <button class="btn-neon mt-3">Upgrade</button>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div id="quiz-view" class="quiz">
+                <h2>{% if exam_mode %}Exams{% else %}Module Quiz: {{ selected_topic.topic_name if selected_topic else "Learning Path Exam" }}{% endif %}</h2>
+                <div id="quiz-body"></div>
+                <button class="btn-neon" id="submit-btn" onclick="submitQuiz()">Submit</button>
+                <button class="btn-neon" id="back-button">Back to Content</button>
+            </div>
+        </div>
+        <div id="meritModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h3>Quiz Result</h3>
+                <!-- <p style="color: purple" id="meritMessage2"></p> -->
+                <p id="mmm"></p>
+                <p id="meritMessage"></p>
+                <img id="meritBadge" src="" style="display: none;">
+                <button class="btn-neon" onclick="closeMerit()">OK</button>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="profile">
+            <h3>Profile</h3>
+            <p>{{ user.username }}<br>Level 3</p>
+            <div id="wishlist">
+                <!-- Wishlist items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentQuestionIndex = 0;
+        let questions = {{ questions | tojson | safe }};
+        let total_questions = {{ total_questions | tojson | safe }};
+        const moduleIndex = {{ module_index | default(0) }};
+        let correctAnswers = 0;
+        let totalAnswered = 0;
+        const examMode = {{ exam_mode | tojson | safe }};
+        const topicId = {{ selected_topic.id if selected_topic else 'null' | tojson | safe }};
+        const learningPathId = {{ learning_path_id | tojson | safe }};
+        const API_URL = "{{ request.base_url }}"; // Fixed to use request.base_url
+    
+        console.log("Script loaded. Initial state:");
+        console.log("API_URL:", API_URL);
+        console.log("questions:", questions);
+        console.log("total_questions:", total_questions);
+        console.log("examMode:", examMode);
+        console.log("topicId:", topicId);
+        console.log("learningPathId:", learningPathId);
+        console.log("totalAnswered:", totalAnswered);
+        console.log("correctAnswers:", correctAnswers);
+
+            // one at a time
+        function displayQuestion(question) {
+            const quizBody = document.getElementById("quiz-body");
+            quizBody.innerHTML = `
+                <p>${question.text}</p>
+                ${question.options.map(opt => `<label><input type="radio" name="quiz-answer" value="${opt}"> ${opt}</label><br>`).join('')}
+                <p id="feedback" style="display: none;"></p>
+            `;
+        }
+    
+        if (questions && Array.isArray(questions) && questions.length > 0) {
+            displayQuestion(questions[currentQuestionIndex]);
+        } else {
+            console.error("No valid questions received:", questions);
+            document.getElementById("quiz-body").innerHTML = "<p>No questions available.</p>";
+        }
+    
+        async function submitQuiz() {
+            console.log("submitQuiz called");
+            console.log("Current state before submission:", { currentQuestionIndex, totalAnswered, correctAnswers });
+    
+            const selectedAnswer = document.querySelector("input[name='quiz-answer']:checked")?.value;
+            if (!selectedAnswer) {
+                console.log("No answer selected");
+                return alert("Please select an answer");
+            }
+    
+            const currentQuestion = questions[currentQuestionIndex];
+            const is_correct = selectedAnswer === currentQuestion.correct_answer;
+            console.log("Selected answer:", selectedAnswer, "Correct answer:", currentQuestion.correct_answer, "Is correct:", is_correct);
+    
+            totalAnswered++;
+            if (is_correct) correctAnswers++;
+            console.log("Updated state:", { totalAnswered, correctAnswers });
+    
+            const feedback = document.getElementById("feedback");
+            feedback.style.display = "block";
+            feedback.innerHTML = is_correct ? 
+                `<span style="color: #00ff00">Correct!</span><br>${currentQuestion.explanation || 'No explanation provided'}` : 
+                `<span style="color: #ff0000">Incorrect.</span><br>${currentQuestion.explanation || 'No explanation provided'}`;
+    
+            const url = examMode ? `${API_URL}submit_exam/${learningPathId}` : `${API_URL}submit_quiz/${topicId}`;
+            console.log("Submitting to URL:", url);
+    
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        answer: selectedAnswer,
+                        question_index: currentQuestionIndex,
+                        is_correct: is_correct,
+                        total_questions: total_questions
+                    }),
+                    credentials: "include"
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error("Fetch error response:", errorData);
+                    throw new Error(errorData.error || "Unknown server error");
+                }
+                const result = await response.json();
+                console.log("Backend result:", result);
+
+
+    
+                if (currentQuestionIndex === total_questions - 1) {
+                    const meritModal = document.getElementById("meritModal");
+                    const finalScore = result.final_score;
+                    const rt = finalScore > 70 ? "Congratulations you've passed" : "you failed try again";
+                    const rc = finalScore > 70 ? "green" : "red";
+                    console.log("Final score from backend:", finalScore);
+                    document.getElementById("meritMessage").innerText = `${result.message || 'Completed!'}\n (${correctAnswers}/${totalAnswered} correct)`;
+                    // document.getElementById("meritMessage2").innerText = `${finalScore > 70 ? "Congratulations you've passed" : "you failed try again"}`;
+                    document.getElementById("mmm").innerText = rt;
+                    document.getElementById("mmm").style.color = rc;
+                    document.getElementById("meritBadge").src = finalScore >= 70 ? "/static/pass_badge.png" : "/static/fail_badge.png";
+                    document.getElementById("meritBadge").style.display = "block";
+                    meritModal.style.display = "flex";
+                } else if (currentQuestionIndex < total_questions - 1) {
+                    currentQuestionIndex++;
+                    setTimeout(() => {
+                        console.log("Displaying next question at index:", currentQuestionIndex);
+                        displayQuestion(questions[currentQuestionIndex]);
+                    }, 500);
+                }
+            } catch (error) {
+                console.error("Submit error:", error);
+                alert(`Error submitting quiz: ${error.message}`);
+            }
+        }
+
+
+
+
+        function closeMerit() {
+            document.getElementById("meritModal").style.display = "none";
+            goBack();
+        }
+
+        // Go back to content
+        function goBack() {
+            if (examMode) {
+                window.location.href = `/exam`;// or dashboard
+            } else {
+                window.location.href = `/course/${learningPathId}/${moduleIndex}`;
+            }
+        }
+        // // Add warning popup for back navigation
+        document.getElementById("back-button")?.addEventListener("click", (event) => {
+            // event.preventDefault();
+            if (totalAnswered > 0 && currentQuestionIndex < total_questions - 1) {
+                const confirmation = confirm(`You’ve answered ${totalAnswered} questions with ${correctAnswers} correct. Are you sure you want to go back? Your progress will be saved.`);
+                if (confirmation) {
+                    goBack();
+                }
+            } else {
+                goBack(); // No warning if quiz completed or not started
+            }
+        });
+
+        // Submit button binding
+        document.getElementById("submit-button")?.addEventListener("click", () => {
+            console.log("Submit button clicked");
+            submitQuiz();
+        });
+
+        // Initialize
+        if (questions.length > 0) {
+            displayQuestion(questions[currentQuestionIndex]);
+        } else {
+            document.getElementById("quiz-body").innerHTML = "<p>No questions available.</p>";
+        }
+
+        // Handle browser back button (optional)
+        // window.onbeforeunload = function() {
+        //     if (totalAnswered > 0) {
+        //         return `You’ve answered ${totalAnswered} questions with ${correctAnswers} correct. Are you sure you want to leave? Your progress will be saved.`;
+        //     }
+        // };
+    
+       
+    </script>
+</body>
+</html>
